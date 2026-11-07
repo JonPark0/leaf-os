@@ -1,0 +1,34 @@
+# ESP-IDF build
+/build/
+/build-*/
+sdkconfig
+sdkconfig.old
+/managed_components/
+
+# Host test build
+/tests/build/
+
+# Python environments and caches
+.venv/
+__pycache__/
+*.pyc
+
+# Generated font / SD bundle output
+/out/
+/tools/fontgen/out/
+*.m5f
+!/main/assets/font_ui.m5f
+!/tests/fixtures/**/*.m5f
+
+# Upstream font sources (large; licences stay tracked)
+/fonts/**/*.ttf
+
+# Local reference material
+/docs.md
+/request.md
+
+# Editor
+.vscode/
+.idea/
+*.swp
+.DS_Store

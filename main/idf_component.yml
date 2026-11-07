@@ -1,0 +1,24 @@
+# Managed dependencies. Resolve with `idf.py reconfigure` (writes dependencies.lock).
+#
+# NOTE: M5PM1 / M5IOE1 are published as Arduino libraries, not registry
+# components. They are pulled from git here; if the registry gains official
+# entries later, switch these to `m5stack/m5pm1` style refs. The exact commits
+# are pinned by dependencies.lock, which is tracked.
+dependencies:
+  idf: ">=5.5.0,<5.6.0"
+
+  # Arduino core as an ESP-IDF component (M5PM1/M5IOE1 need the Arduino API).
+  espressif/arduino-esp32:
+    version: "^3.3.0"
+
+  # M5Unified brings M5GFX and the IO-expander accessor used by the EPD driver.
+  m5stack/m5unified:
+    version: "^0.2.5"
+
+  m5pm1:
+    git: https://github.com/m5stack/M5PM1.git
+    version: "main"
+
+  m5ioe1:
+    git: https://github.com/m5stack/M5IOE1.git
+    version: "main"

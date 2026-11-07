@@ -1,0 +1,10 @@
+idf_component_register(
+    SRCS
+        "src/edp_spi.cpp"
+        "src/ssd1677.cpp"
+    INCLUDE_DIRS
+        "include"
+    PRIV_REQUIRES
+        driver
+        esp_timer
+)

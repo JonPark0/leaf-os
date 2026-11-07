@@ -1,0 +1,2 @@
+resvg-py>=0.5   # SVG rasteriser, pure wheel (no system cairo)
+pillow>=9.0     # threshold + preview sheet

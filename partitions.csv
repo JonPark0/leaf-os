@@ -1,0 +1,11 @@
+# M5PaperMono-Lite 16 MB flash layout.
+# Dual OTA app slots (room for future OTA updates) + large LittleFS region for
+# the embedded base fonts, icons and a pagination-cache fallback.
+#
+# Name,      Type, SubType,  Offset,    Size,     Flags
+nvs,         data, nvs,      0x9000,    0x5000,
+otadata,     data, ota,      0xe000,    0x2000,
+app0,        app,  ota_0,    0x10000,   0x280000,
+app1,        app,  ota_1,    0x290000,  0x280000,
+storage,     data, littlefs, 0x510000,  0xAE0000,
+coredump,    data, coredump, 0xFF0000,  0x10000,

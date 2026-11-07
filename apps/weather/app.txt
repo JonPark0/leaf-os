@@ -1,0 +1,5 @@
+name    = 날씨
+name_en = Weather
+icon    = cloud
+entry   = main.lua
+order   = 20
