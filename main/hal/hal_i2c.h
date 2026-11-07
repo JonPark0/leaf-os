@@ -6,7 +6,7 @@
  * (no NFC) and therefore never creates the IO expander.
  *
  * All access is serialized by a single mutex. The charger IC (IP2315, 0x75) is
- * NOT touched here; per docs.md it must be gated onto the bus via M5IOE1
+ * NOT touched here; per product docs it must be gated onto the bus via M5IOE1
  * PYG11 only for the duration of a transaction (see hal_power, later phase).
  */
 #pragma once

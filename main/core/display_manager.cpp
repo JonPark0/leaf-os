@@ -2,9 +2,9 @@
 
 #include <algorithm>
 
-#include <esp_heap_caps.h>
 #include <esp_log.h>
-#include <esp_timer.h>
+
+#include "hal_sys.h"
 
 namespace core {
 namespace {
@@ -22,10 +22,8 @@ bool DisplayManager::init(const ssd1677::HwHooks& hooks)
     if (ready_) return true;
     if (!fb_.init()) return false;
 
-    plane1_ = static_cast<uint8_t*>(
-        heap_caps_malloc(ssd1677::PLANE_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
-    plane2_ = static_cast<uint8_t*>(
-        heap_caps_malloc(ssd1677::PLANE_BYTES, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+    plane1_ = static_cast<uint8_t*>(hal::sys::allocLarge(ssd1677::PLANE_BYTES));
+    plane2_ = static_cast<uint8_t*>(hal::sys::allocLarge(ssd1677::PLANE_BYTES));
     if (plane1_ == nullptr || plane2_ == nullptr) {
         ESP_LOGE(TAG, "plane OOM");
         return false;
@@ -48,32 +46,32 @@ void DisplayManager::invalidate(Rect r, RefreshHint hint)
 {
     r = r.clampedTo(Framebuffer::kW, Framebuffer::kH);
     if (r.empty()) return;
-    portENTER_CRITICAL(&lock_);
+    hal::sys::criticalEnter();
     dirty_ = dirty_.unite(r);
     if (hint == RefreshHint::Quality) hint_ = RefreshHint::Quality;
-    portEXIT_CRITICAL(&lock_);
+    hal::sys::criticalExit();
 }
 
 void DisplayManager::invalidateAll(RefreshHint hint)
 {
-    portENTER_CRITICAL(&lock_);
+    hal::sys::criticalEnter();
     dirty_ = {0, 0, Framebuffer::kW, Framebuffer::kH};
     hint_  = hint;
-    portEXIT_CRITICAL(&lock_);
+    hal::sys::criticalExit();
 }
 
 void DisplayManager::requestFullClear()
 {
-    portENTER_CRITICAL(&lock_);
+    hal::sys::criticalEnter();
     forceFull_ = true;
-    portEXIT_CRITICAL(&lock_);
+    hal::sys::criticalExit();
 }
 
 bool DisplayManager::hasPending() const
 {
-    portENTER_CRITICAL(&lock_);
+    hal::sys::criticalEnter();
     const bool pending = !dirty_.empty() || forceFull_;
-    portEXIT_CRITICAL(&lock_);
+    hal::sys::criticalExit();
     return pending;
 }
 
@@ -152,9 +150,9 @@ void DisplayManager::flush()
     // input task may call invalidate() while the (long, blocking) refresh below
     // runs; that new dirty region must survive for the next flush rather than
     // being wiped when this one finishes.
-    portENTER_CRITICAL(&lock_);
+    hal::sys::criticalEnter();
     if (dirty_.empty() && hint_ == RefreshHint::Auto && !forceFull_) {
-        portEXIT_CRITICAL(&lock_);
+        hal::sys::criticalExit();
         return;
     }
     const Rect d = dirty_.clampedTo(Framebuffer::kW, Framebuffer::kH);
@@ -163,9 +161,9 @@ void DisplayManager::flush()
     dirty_     = {};
     hint_      = RefreshHint::Auto;
     forceFull_ = false;
-    portEXIT_CRITICAL(&lock_);
+    hal::sys::criticalExit();
 
-    const int64_t t0 = esp_timer_get_time();
+    const int64_t t0 = hal::sys::nowUs();
 
     const bool wantQuality = (hint == RefreshHint::Quality) || forceFull;
     // While a hold is active the DC-balance forced full is deferred (see
@@ -230,7 +228,7 @@ void DisplayManager::flush()
     }
     failStreak_ = 0;
 
-    const int ms = static_cast<int>((esp_timer_get_time() - t0) / 1000);
+    const int ms = static_cast<int>((hal::sys::nowUs() - t0) / 1000);
     ESP_LOGI(TAG, "flush %-9s dirty=(%d,%d %dx%d) partials=%d %dms",
              mode, d.x, d.y, d.w, d.h, partialCount_, ms);
 }

@@ -1,11 +1,11 @@
 #include "lua_app.h"
+#include "hal_sys.h"
 
 #include <cstdio>
 #include <sys/stat.h>
 #include <utility>
 
 #include <esp_log.h>
-#include <esp_timer.h>
 
 #include "lua.hpp"
 
@@ -38,8 +38,8 @@ LuaApp::~LuaApp()
     if (s_active_ == this) s_active_ = nullptr;
 }
 
-void LuaApp::armDeadline() { deadline_us_ = esp_timer_get_time() + kCallbackBudgetUs; }
-bool LuaApp::timedOut() const { return esp_timer_get_time() > deadline_us_; }
+void LuaApp::armDeadline() { deadline_us_ = hal::sys::nowUs() + kCallbackBudgetUs; }
+bool LuaApp::timedOut() const { return hal::sys::nowUs() > deadline_us_; }
 
 // A small bottom-right "loading…" chip, painted + flushed synchronously right
 // before a call that blocks the UI task for seconds (http.get). The next normal

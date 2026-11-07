@@ -3,7 +3,8 @@
 # Layering (low -> high), enforced by review rather than by separate components
 # so the whole tree rebuilds together during early bring-up:
 #
-#   hal/   platform-dependent drivers (the only code that touches GPIO/I2C/SPI)
+#   hal/   platform-dependent drivers and services; the only layer that calls
+#          ESP-IDF or FreeRTOS directly, apart from esp_log
 #   core/  hardware-independent kernel: display manager, event bus, kernel loop
 #   gfx/   font binary loader + text layout
 #   ui/    self-contained widget library

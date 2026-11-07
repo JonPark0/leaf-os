@@ -1,17 +1,17 @@
 /*
  * Kernel — the tick loop.
  *
- * Owns two FreeRTOS tasks:
- *   input  (this thread) — polls hal::touch / hal::keys at ~60 Hz, turns touch
- *                          into Down/Move/Up phases, routes to the active
- *                          Screen, applies the default side-key action
+ * run() owns two tasks, each repeating one step:
+ *   input  (this thread) — stepInput(): polls hal::touch / hal::keys at ~60 Hz,
+ *                          turns touch into Down/Move/Up phases, routes to the
+ *                          active Screen, applies the default side-key action
  *                          (front-light brightness) when the Screen does not
  *                          consume the key, then calls Screen::paint().
- *   render (spawned)     — performs the blocking panel refresh once input has
- *                          settled, so input latency is unaffected by the
- *                          ~0.7 s e-ink update.
+ *   render (spawned)     — stepRender(): performs the blocking panel refresh
+ *                          once input has settled, so input latency is
+ *                          unaffected by the ~0.7 s e-ink update.
  *
- * Phase 2 layers an app stack on top of this; for now a single Screen is set.
+ * A single-threaded host calls the two steps from its own loop instead of run().
  */
 #pragma once
 
@@ -19,6 +19,7 @@
 #include <functional>
 #include <vector>
 
+#include "hal_touch.h"
 #include "screen.h"
 #include "ssd1677.h"
 #include "status_bar.h"
@@ -62,6 +63,9 @@ public:
 
     [[noreturn]] void run();  // never returns
 
+    void stepInput();   // one input tick
+    void stepRender();  // flush the panel if a refresh is due
+
 private:
     Kernel() = default;
     void renderLoop();
@@ -94,6 +98,11 @@ private:
     // a plain 64-bit volatile can tear on Xtensa.
     std::atomic<int64_t> last_input_us_{0};
     std::atomic<bool>    input_held_{false};
+    bool    was_down_ = false;         // input task only
+    // Input task only. Kept across ticks: read() leaves it untouched on release,
+    // so the Up phase reports where the finger was last seen.
+    hal::touch::Point touch_pts_[2];
+    int64_t first_pending_us_ = 0;     // render task only
     bool ready_ = false;
 };
 

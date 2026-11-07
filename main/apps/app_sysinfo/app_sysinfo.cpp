@@ -3,12 +3,10 @@
 #include <cstdio>
 #include <cstdint>
 
-#include <esp_heap_caps.h>
-#include <esp_system.h>
-#include <esp_timer.h>
 
 #include "hal_power.h"
 #include "hal_storage.h"
+#include "hal_sys.h"
 #include "i18n.h"
 #include "settings.h"
 
@@ -120,14 +118,14 @@ void SysInfoApp::rebuild()
 
     L.push_back(tr(SYS_MEMORY));
     std::snprintf(b, sizeof(b), "heap %s  ·  PSRAM %s  %s",
-                  humanBytes(esp_get_free_heap_size()).c_str(),
-                  humanBytes(heap_caps_get_free_size(MALLOC_CAP_SPIRAM)).c_str(),
+                  humanBytes(hal::sys::freeHeapBytes()).c_str(),
+                  humanBytes(hal::sys::freePsramBytes()).c_str(),
                   tr(SYS_FREE));
     L.push_back(b);
     L.push_back("");
 
     L.push_back(tr(SYS_UPTIME));
-    const int64_t sec = esp_timer_get_time() / 1000000;
+    const int64_t sec = hal::sys::nowUs() / 1000000;
     std::snprintf(b, sizeof(b), tr(SYS_UPTIME_FMT),
                   static_cast<int>(sec / 3600), static_cast<int>((sec % 3600) / 60));
     L.push_back(b);

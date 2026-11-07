@@ -2,7 +2,7 @@
  * Front-light and battery, both via the M5PM1 on the system I2C bus.
  *
  * Front-light: M5PM1 GPIO3 routed to PWM0 (12-bit duty, 0..4095). This is the
- * BL_FB line in docs.md; it is the M5PM1's own pin, not ESP32 GPIO3 (which is
+ * BL_FB line in product docs; it is the M5PM1's own pin, not ESP32 GPIO3 (which is
  * Button B) — no conflict.
  *
  * Battery: M5PM1 exposes VBAT directly (reg 0x22/0x23, millivolts), so the

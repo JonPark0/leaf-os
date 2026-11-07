@@ -1,6 +1,6 @@
 #include "app_power.h"
+#include "hal_sys.h"
 
-#include <esp_timer.h>
 
 #include "display_manager.h"
 #include "hal_power.h"
@@ -104,13 +104,13 @@ void PowerApp::tap(Action a)
     }
     disarm();
     armed_ = a;
-    armed_us_ = esp_timer_get_time();
+    armed_us_ = hal::sys::nowUs();
     hint_.setText(tr(PWR_CONFIRM));   // only the hint line, not the button
 }
 
 void PowerApp::onTick()
 {
-    if (armed_ != kNone && esp_timer_get_time() - armed_us_ > kArmWindowUs)
+    if (armed_ != kNone && hal::sys::nowUs() - armed_us_ > kArmWindowUs)
         disarm();
 }
 

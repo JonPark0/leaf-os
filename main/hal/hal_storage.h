@@ -1,7 +1,7 @@
 /*
  * microSD storage — SDMMC mount + hot-plug detection.
  *
- * Bus (docs.md "microSD"): 4-bit SDMMC on native ESP32-S3 pins
+ * Bus (product docs "microSD"): 4-bit SDMMC on native ESP32-S3 pins
  *   CMD=G12  CLK=G13  D0=G11  D1=G10  D2=G9  D3=G8
  * Slot power-enable and card-detect are on the M5IOE1 expander:
  *   SD_EN  = PYG14  (pin index 13 -> *_H reg bit 5) — drive high to power the slot

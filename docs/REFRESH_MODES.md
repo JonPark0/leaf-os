@@ -35,7 +35,7 @@ dominated by the per-call **deep-sleep exit + hardware reset**, not the waveform
 `managed_components/m5stack__m5gfx/.../Panel_SSD1677.cpp` carries four
 hand-tuned LUTs with explicit DC-balance engineering
 (`|VSH1| == |VSL|`, symmetric net drive per group). Lab timings from
-`docs.md` "M5GFX LUT Refresh Speed":
+the M5Stack product docs "M5GFX LUT Refresh Speed":
 
 | M5GFX mode | LUT | `0x22` seq | Time | Character |
 |---|---|---|---|---|
@@ -44,7 +44,7 @@ hand-tuned LUTs with explicit DC-balance engineering
 | `epd_fast` | `lut_fast` (48-frame absolute, Mode 2) | `0x1C` | **0.34 s** | absolute, ping-pong RAM face |
 | `epd_fastest` | `lut_fastest` (differential mono, 2-frame prepulse + 8-frame dose) | `0x1C` | **0.07 s** | only flipped pixels driven; needs a "previously displayed" buffer |
 
-`docs.md` still carries the standing warning: *M5GFX PaperMono waveforms have
+the M5Stack product docs still carries the standing warning: *M5GFX PaperMono waveforms have
 been "unstable"; prefer the OTP example; a wrong custom waveform can
 **permanently damage** the panel via DC imbalance.* This particular file looks
 newer and carefully balanced, but it is **unverified on our unit**.
@@ -75,7 +75,7 @@ Pure driver change, **no waveform risk**. Already listed as a Phase-4 item in
 `ARCHITECTURE.md`.
 
 ### C. Reduce how often the 4 s full happens  ⟶ zero waveform risk
-- `kPartialLimit` 10 → 12–14. `docs.md` says "approximately 10", a soft number.
+- `kPartialLimit` 10 → 12–14. the M5Stack product docs says "approximately 10", a soft number.
 - Consume the DC-balance full **at the next screen transition** instead of
   mid-idle, so the flash reads as intentional (plan already suggested this).
 - Already done: no-op flushes don't count toward the limit.

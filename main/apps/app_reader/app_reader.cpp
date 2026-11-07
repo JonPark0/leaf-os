@@ -1,4 +1,5 @@
 #include "app_reader.h"
+#include "hal_sys.h"
 
 #include <algorithm>
 #include <cstdio>
@@ -8,7 +9,6 @@
 #include <strings.h>
 
 #include <esp_log.h>
-#include <esp_timer.h>
 
 #include "display_manager.h"
 #include "epub_parser.h"
@@ -180,10 +180,10 @@ void ReaderApp::loadAndPaginate()
     m.width = boxW();
     m.height = kBoxH;
     m.line_extra = line_extra_;
-    const int64_t t0 = esp_timer_get_time();
+    const int64_t t0 = hal::sys::nowUs();
     pag_.paginate(*book_, *font_, m);
     ESP_LOGI(TAG, "paginate: %d pages in %lld ms",
-             pag_.pageCount(), (esp_timer_get_time() - t0) / 1000);
+             pag_.pageCount(), (hal::sys::nowUs() - t0) / 1000);
 
     // Restore saved reading position (migrating a pre-dot sidecar if present).
     uint32_t off = 0;
@@ -217,10 +217,10 @@ void ReaderApp::repaginate()
     m.width = boxW();
     m.height = kBoxH;
     m.line_extra = line_extra_;
-    const int64_t t0 = esp_timer_get_time();
+    const int64_t t0 = hal::sys::nowUs();
     pag_.paginate(*book_, *font_, m);
     ESP_LOGI(TAG, "repaginate: %d pages in %lld ms",
-             pag_.pageCount(), (esp_timer_get_time() - t0) / 1000);
+             pag_.pageCount(), (hal::sys::nowUs() - t0) / 1000);
 
     page_ = pag_.pageForOffset(saved);
     screen_.invalidateAll();

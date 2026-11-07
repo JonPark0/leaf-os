@@ -1,15 +1,13 @@
 #include "kernel.h"
 
 #include <esp_log.h>
-#include <esp_timer.h>
-#include <freertos/FreeRTOS.h>
-#include <freertos/task.h>
 
 #include "app.h"
 #include "display_manager.h"
 #include "hal_keys.h"
 #include "hal_power.h"
 #include "hal_storage.h"
+#include "hal_sys.h"
 #include "hal_touch.h"
 #include "hal_wifi.h"
 
@@ -19,6 +17,7 @@ constexpr char TAG[] = "kernel";
 constexpr int64_t kSettleUs      = 220'000;    // quiet time before a refresh
 constexpr int64_t kMaxDeferUs    = 2'000'000;  // refresh anyway under constant input
 constexpr int     kInputPeriodMs = 16;
+constexpr int     kRenderPeriodMs = 40;
 constexpr int     kBrightStepPm  = 100;        // 10% per key event
 }  // namespace
 
@@ -139,94 +138,102 @@ void Kernel::renderTrampoline(void* self)
     static_cast<Kernel*>(self)->renderLoop();
 }
 
-void Kernel::renderLoop()
+void Kernel::stepRender()
 {
     auto& dm = DisplayManager::instance();
-    int64_t first_pending_us = 0;
-    for (;;) {
-        const int64_t t = esp_timer_get_time();
-        if (dm.hasPending()) {
-            if (first_pending_us == 0) first_pending_us = t;
-            const bool settled = !input_held_ && (t - last_input_us_) > kSettleUs;
-            const bool capped  = (t - first_pending_us) > kMaxDeferUs;
-            if (settled || capped) {
-                dm.flush();
-                first_pending_us = 0;
-            }
-        } else {
-            first_pending_us = 0;
+    const int64_t t = hal::sys::nowUs();
+    if (dm.hasPending()) {
+        if (first_pending_us_ == 0) first_pending_us_ = t;
+        const bool settled = !input_held_ && (t - last_input_us_) > kSettleUs;
+        const bool capped  = (t - first_pending_us_) > kMaxDeferUs;
+        if (settled || capped) {
+            dm.flush();
+            first_pending_us_ = 0;
         }
-        vTaskDelay(pdMS_TO_TICKS(40));
+    } else {
+        first_pending_us_ = 0;
+    }
+}
+
+void Kernel::renderLoop()
+{
+    for (;;) {
+        stepRender();
+        hal::sys::delayMs(kRenderPeriodMs);
     }
 }
 
 // --- input loop ---------------------------------------------------------
 
-void Kernel::run()
+void Kernel::stepInput()
 {
-    xTaskCreatePinnedToCore(renderTrampoline, "render", 6144, this, 4, nullptr, 1);
-
     auto& dm = DisplayManager::instance();
     hal::keys::KeyEvent kevs[8];
-    hal::touch::Point tpts[2];
-    bool was_down = false;
+    hal::touch::Point* tpts = touch_pts_;
 
+    const int64_t t = hal::sys::nowUs();
+    processNav();  // apply any queued push/pop before touching the stack
+    ui::Screen* scr = activeScreen();
+    apps::App* app = stack_.empty() ? nullptr : stack_.back();
+    bool activity = false;
+
+    // --- keys ---
+    const int kn = hal::keys::poll(kevs, 8);
+    for (int i = 0; i < kn; ++i) {
+        const auto& e = kevs[i];
+        const bool consumed = scr && scr->onKey(static_cast<int>(e.key),
+                                                static_cast<int>(e.ev));
+        const bool act = e.ev == hal::keys::Event::Click ||
+                         e.ev == hal::keys::Event::Repeat;
+        if (!consumed && act) {
+            const int dir = (e.key == hal::keys::kA) ? +1 : -1;  // A up, B down
+            hal::power::setBrightness(hal::power::brightness() + dir * kBrightStepPm);
+            if (bright_cb_) bright_cb_(hal::power::brightness());
+        }
+        activity = true;
+    }
+
+    // --- touch -> Down / Move / Up ---
+    const int tn = hal::touch::read(tpts, 2);
+    const bool down = tn > 0;
+    if (scr) {
+        if (down && !was_down_) {
+            ESP_LOGI(TAG, "touch down (%d,%d)", tpts[0].x, tpts[0].y);
+            scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Down);
+        }
+        else if (down && was_down_)  scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Move);
+        else if (!down && was_down_) scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Up);
+    }
+    if (down != was_down_ || down) activity = true;
+    was_down_ = down;
+
+    // SD hot-plug: poll() rate-limits its own I2C reads. On a settled
+    // insert/removal, let the foreground app rebuild (home re-filters the
+    // file-manager tile).
+    if (hal::storage::poll() && app) app->onSystemChanged();
+
+    // Wi-Fi state -> status bar indicator.
+    if (hal::wifi::poll()) status_bar_.setWifiConnected(hal::wifi::connected());
+
+    if (app) app->onTick();
+    if (tick_cb_) tick_cb_();
+    status_bar_.tick();
+
+    if (scr) scr->paint(dm.fb());
+
+    input_held_ = down || hal::keys::isDown(hal::keys::kA) ||
+                  hal::keys::isDown(hal::keys::kB);
+    if (activity) last_input_us_ = t;
+}
+
+void Kernel::run()
+{
+    if (!hal::sys::spawnPinned(renderTrampoline, "render", 6144, this, 4, 1)) {
+        ESP_LOGE(TAG, "render task not started");
+    }
     for (;;) {
-        const int64_t t = esp_timer_get_time();
-        processNav();  // apply any queued push/pop before touching the stack
-        ui::Screen* scr = activeScreen();
-        apps::App* app = stack_.empty() ? nullptr : stack_.back();
-        bool activity = false;
-
-        // --- keys ---
-        const int kn = hal::keys::poll(kevs, 8);
-        for (int i = 0; i < kn; ++i) {
-            const auto& e = kevs[i];
-            const bool consumed = scr && scr->onKey(static_cast<int>(e.key),
-                                                    static_cast<int>(e.ev));
-            const bool act = e.ev == hal::keys::Event::Click ||
-                             e.ev == hal::keys::Event::Repeat;
-            if (!consumed && act) {
-                const int dir = (e.key == hal::keys::kA) ? +1 : -1;  // A up, B down
-                hal::power::setBrightness(hal::power::brightness() + dir * kBrightStepPm);
-                if (bright_cb_) bright_cb_(hal::power::brightness());
-            }
-            activity = true;
-        }
-
-        // --- touch -> Down / Move / Up ---
-        const int tn = hal::touch::read(tpts, 2);
-        const bool down = tn > 0;
-        if (scr) {
-            if (down && !was_down) {
-                ESP_LOGI(TAG, "touch down (%d,%d)", tpts[0].x, tpts[0].y);
-                scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Down);
-            }
-            else if (down && was_down)  scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Move);
-            else if (!down && was_down) scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Up);
-        }
-        if (down != was_down || down) activity = true;
-        was_down = down;
-
-        // SD hot-plug: poll() rate-limits its own I2C reads. On a settled
-        // insert/removal, let the foreground app rebuild (home re-filters the
-        // file-manager tile).
-        if (hal::storage::poll() && app) app->onSystemChanged();
-
-        // Wi-Fi state -> status bar indicator.
-        if (hal::wifi::poll()) status_bar_.setWifiConnected(hal::wifi::connected());
-
-        if (app) app->onTick();
-        if (tick_cb_) tick_cb_();
-        status_bar_.tick();
-
-        if (scr) scr->paint(dm.fb());
-
-        input_held_ = down || hal::keys::isDown(hal::keys::kA) ||
-                      hal::keys::isDown(hal::keys::kB);
-        if (activity) last_input_us_ = t;
-
-        vTaskDelay(pdMS_TO_TICKS(kInputPeriodMs));
+        stepInput();
+        hal::sys::delayMs(kInputPeriodMs);
     }
 }
 

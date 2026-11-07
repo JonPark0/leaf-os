@@ -23,7 +23,7 @@ constexpr uint8_t IOE_MODE_H = 0x04, IOE_OUT_H = 0x06, IOE_DRV_H = 0x14;
 constexpr uint8_t TP_VDD_H_BIT = 1u << 4;  // PYG13 in H regs
 constexpr uint8_t TP_RST_L_BIT = 1u << 5;  // PYG6  in L regs
 
-// Firmware-clamped active area (docs.md).
+// Firmware-clamped active area (product docs).
 constexpr uint16_t X_MIN = 5, X_MAX = 475;
 constexpr uint16_t Y_MIN = 5, Y_MAX = 795;
 constexpr int PANEL_H = 800;

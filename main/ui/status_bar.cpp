@@ -1,9 +1,9 @@
 #include "status_bar.h"
+#include "hal_sys.h"
 
 #include <algorithm>
 #include <cstdio>
 
-#include <esp_timer.h>
 
 #include "hal_power.h"
 #include "hal_rtc.h"
@@ -74,7 +74,7 @@ void StatusBar::tick()
 {
     rebuildBrightness();  // cheap, reflects key presses immediately
 
-    const int64_t t = esp_timer_get_time();
+    const int64_t t = hal::sys::nowUs();
     if (t < next_poll_us_) return;
     next_poll_us_ = t + 1'000'000;
     rebuildClock();

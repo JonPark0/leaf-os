@@ -73,7 +73,7 @@ the widget layer and the two-task kernel are all verified on hardware.
 |---|---|
 | `book/book.h` — neutral `TextRun` stream + `MemoryBook` (scalar char offsets) | **done** |
 | `book/txt_parser` — BOM/UTF-16 → UTF-8, paragraph/rule blocking, hard-wrap join | **done** |
-| `tests/` host harness + `test_txt_parser` (12 cases) + fixtures | **written; needs a host C++ compiler to run** — see `tests/README.md` |
+| `tests/` host harness + `test_txt_parser` (12 cases) + fixtures | **done**, runs in CI — see `tests/README.md` |
 | `gfx/paginator` — page-boundary table for a fixed box + font, scalar-offset index | **done** |
 | `app_reader` — full-screen TXT read view: L/R-third tap = page, centre = status bar, `<file>.pos` sidecar resume | **done** (HW check pending) |
 | `book/xml_lite` (pull XML) + `book/xhtml_parser` (→ TextRuns) | **done** (host-testable) |
@@ -103,9 +103,9 @@ Generate more faces/sizes: `tools/fontgen/.venv` (freetype-py + pillow) —
 (no miniz.c vendored) so they build under ESP-IDF only; `xml_lite` /
 `xhtml_parser` / `txt_parser` stay host-clean.
 
-No host C++ compiler is installed on this box, so the host tests can't run yet.
-As an interim check, tapping a `.txt` in `app_files` parses it and logs the run
-/ char counts over serial.
+Host tests run in CI on every push and pull request. As an on-device check,
+tapping a `.txt` in `app_files` parses it and logs the run / char counts over
+serial.
 
 Refresh-speed work is flagged for later in **`docs/REFRESH_MODES.md`**: option C
 (fewer 4 s fulls — `kPartialLimit` 13 + fold the DC-balance full into a screen
@@ -143,21 +143,17 @@ M5Unified's released build does **not** autodetect the PaperMono-Lite, so we do
 not call `M5.begin()`; `hal_i2c` / `hal_board` drive M5PM1 and M5IOE1 directly.
 See `docs/ARCHITECTURE.md`.
 
-The current `main/main.cpp` is an **interactive verification harness**: 6
-touch-advanced stages (full mono, windowed partial, ghosting, forced full,
-4-gray, touch-accuracy grid) with on-screen targets and serial prompts.
-Replace it with the kernel boot once `core/` lands.
-
 ## Repository layout
 
 ```
 components/ssd1677_otp/   SSD1677 driver (partial-mono / full-mono / 4-gray)
-main/hal/                  platform drivers — the only code touching GPIO/I2C/SPI
+main/hal/                  platform drivers and services — the only code calling ESP-IDF/FreeRTOS
 main/core/                 display manager, framebuffer, event bus, kernel
 main/gfx/                  font binary loader, glyph cache, text layout
 main/ui/                   self-contained widget library
 main/book/                 txt/epub parsers, paginator (also builds on host)
-main/apps/                 home / settings / reader / files
+main/apps/                 home / settings / reader / files / Lua app host
+apps/                      SD Lua apps (copy to /sd/apps/)
 tools/fontgen/             host font -> .m5f converter (Python)
 tests/                     host-native tests for book/ and gfx/text_layout
 ```

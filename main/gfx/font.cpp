@@ -3,8 +3,9 @@
 #include <cstdio>
 #include <cstring>
 
-#include <esp_heap_caps.h>
 #include <esp_log.h>
+
+#include "hal_sys.h"
 
 namespace gfx {
 namespace {
@@ -77,7 +78,7 @@ Font::~Font() { unload(); }
 
 void Font::unload()
 {
-    if (owned_) { heap_caps_free(owned_); owned_ = nullptr; }
+    if (owned_) { hal::sys::freeBuffer(owned_); owned_ = nullptr; }
     data_ = nullptr;
 }
 
@@ -94,17 +95,16 @@ bool Font::loadFromFile(const char* path)
         ESP_LOGW(TAG, "%s: implausible size %ld", path, sz);
         return false;
     }
-    uint8_t* buf = static_cast<uint8_t*>(
-        heap_caps_malloc(static_cast<size_t>(sz), MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+    uint8_t* buf = static_cast<uint8_t*>(hal::sys::allocLarge(static_cast<size_t>(sz)));
     if (buf == nullptr) {
-        buf = static_cast<uint8_t*>(heap_caps_malloc(static_cast<size_t>(sz), MALLOC_CAP_8BIT));
+        buf = static_cast<uint8_t*>(hal::sys::allocInternal(static_cast<size_t>(sz)));
     }
     if (buf == nullptr) { std::fclose(f); ESP_LOGE(TAG, "font alloc %ld failed", sz); return false; }
 
     const size_t got = std::fread(buf, 1, static_cast<size_t>(sz), f);
     std::fclose(f);
     if (got != static_cast<size_t>(sz) || !load(buf, got)) {
-        heap_caps_free(buf);
+        hal::sys::freeBuffer(buf);
         ESP_LOGW(TAG, "%s: read/parse failed", path);
         return false;
     }

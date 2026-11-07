@@ -11,12 +11,17 @@ ui/     widget tree, screens, status bar
 gfx/    font_renderer · font_cache · text_layout
 book/   txt/epub parsers · paginator   (host-testable, no hardware deps)
 core/   display_manager · framebuffer · event_bus · kernel · settings
-hal/    i2c · display · touch · keys · power · rtc · storage · wifi
+hal/    i2c · display · touch · keys · power · rtc · storage · wifi · sys · nvs · http
 ```
 
-Rule: only `hal/` touches GPIO / I2C / SPI. Everything above talks to `hal/`
-through its facade (`hal::`), and all screen drawing goes through
+Rule: only `hal/` calls ESP-IDF, FreeRTOS or touches GPIO / I2C / SPI. The one
+exception is `esp_log`, used directly throughout. Everything above talks to
+`hal/` through its facade (`hal::`), and all screen drawing goes through
 `core::DisplayManager` — widgets never call the panel driver directly.
+
+`hal::sys` carries the clock, delay, task, buffer and critical-section services.
+`core::Kernel::stepInput()` and `stepRender()` hold one iteration of each kernel
+task, so a single-threaded host can drive them from its own loop.
 
 ## SSD1677 panel driver (`components/ssd1677_otp`)
 
@@ -46,7 +51,7 @@ The controller has two RAM planes: `0x24` (RAM1) and `0x26` (RAM2).
    (cover thumbnails, images) forces a full 4-gray refresh, which also forces
    the *next* frame to be a full mono refresh to rebuild the partial baseline.
    Text UI is 1-bit and uses partial refresh normally.
-2. The DC-balance rule from `docs.md` (~10 fast refreshes, then one full) maps
+2. The DC-balance rule from the M5Stack product docs (~10 fast refreshes, then one full) maps
    onto the partial-mono counter. Threshold default = 10. **App-to-app screen
    changes are `RefreshHint::Page`, not `Quality`** — they go through the fast
    full-frame partial (~0.7 s), not the ~4 s OTP full-mono. The ~4 s OTP path

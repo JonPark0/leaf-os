@@ -23,7 +23,7 @@ constexpr uint8_t IOE_REG_OUT_L  = 0x05;  // output level, pins 0..7
 constexpr uint8_t IOE_REG_DRV_L  = 0x13;  // 0 = push-pull, 1 = open-drain
 constexpr uint8_t IOE_REG_I2C_CFG = 0x23; // [3:0] SLEEP = 0: disable idle sleep
 
-// docs.md PinMap: EPD 3V3 enable = PYG3 (pin idx 2), EPD reset = PYG5 (idx 4).
+// product docs PinMap: EPD 3V3 enable = PYG3 (pin idx 2), EPD reset = PYG5 (idx 4).
 constexpr uint8_t EPD_EN_BIT  = 1u << 2;
 constexpr uint8_t EPD_RST_BIT = 1u << 4;
 constexpr uint8_t EPD_BITS    = EPD_EN_BIT | EPD_RST_BIT;

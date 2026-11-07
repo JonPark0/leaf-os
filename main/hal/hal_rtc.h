@@ -1,7 +1,7 @@
 /*
  * RX8130CE real-time clock (system I2C bus, addr 0x32).
  *
- * INT is wired to M5PM1 as a low-power wake source (docs.md); alarm/timer setup
+ * INT is wired to M5PM1 as a low-power wake source (product docs); alarm/timer setup
  * is deferred to the power-management phase. This module does time only.
  */
 #pragma once

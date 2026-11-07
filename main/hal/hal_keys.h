@@ -1,6 +1,6 @@
 /*
  * The two side keys.  ESP32-S3 GPIO2 = Button A (KEY1), GPIO3 = Button B (KEY2)
- * (docs.md HMI). Active-low with internal pull-up. The M5PM1's own "GPIO3"
+ * (product docs HMI). Active-low with internal pull-up. The M5PM1's own "GPIO3"
  * (front-light PWM) is a different pin — no conflict.
  *
  * Poll-based: call poll() once per kernel tick; it returns discrete events.
