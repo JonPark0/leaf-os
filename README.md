@@ -27,6 +27,20 @@ idf.py -p <PORT> flash monitor
 Download mode: hold the power button ~2 s until the red LED flashes, release.
 After the first flash, USB-CDC reset usually re-flashes without the button.
 
+## Releases
+
+Pushing a `v*` tag builds the firmware in CI and publishes a GitHub release
+(`.github/workflows/release.yml`). A tag with a hyphen, such as `v0.2.0-rc1`,
+is marked as a pre-release.
+
+| Asset | Use |
+|---|---|
+| `leaf-os-<tag>-full.bin` | First install, written at `0x0`. Erases saved settings and Wi-Fi. |
+| `leaf-os-<tag>-update.zip` | Update that keeps settings: `esptool.py --chip esp32s3 write_flash @flash_args` |
+| `leaf-os-<tag>-sd.zip` | SD card root: Lua apps and sample language packs |
+| `leaf-os-<tag>-elf.zip` | Debug symbols |
+| `SHA256SUMS` | Checksums |
+
 ## Status — Phase 1 (display foundation)
 
 | Step | Item | State |
