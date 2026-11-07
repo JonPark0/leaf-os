@@ -28,6 +28,7 @@ enum Lang { Ko = 0, En = 1 };
     X(APP_BOOKS,          "책",                  "Books")                        \
     X(APP_FILES,          "파일",                "Files")                        \
     X(APP_SETTINGS,       "설정",                "Settings")                     \
+    X(APP_STORE,          "앱",                  "Apps")                        \
     X(APP_CLOCK,          "시계",                "Clock")                        \
     X(APP_SKETCH,         "그림",                "Draw")                         \
     X(APP_MEMO,           "메모",                "Memo")                         \
@@ -56,6 +57,31 @@ enum Lang { Ko = 0, En = 1 };
     X(SET_WIFI_UNSET,     "미설정",              "not set")                      \
     X(SET_WIFI_OFF,       "꺼짐",                "off")                          \
     X(LUA_LOADING,        "불러오는 중…",        "Loading…")                     \
+    /* app catalog */                                                           \
+    X(LUA_NEEDS_FIRMWARE, "이 앱은 Lua API %d가 필요합니다.\n펌웨어를 업데이트해 주세요. (현재 %d)", \
+                          "This app needs Lua API %d.\nUpdate the firmware. (This one has %d.)") \
+    X(STORE_REFRESH,      "새로고침",            "Refresh")                     \
+    X(STORE_LOADING,      "앱 목록을 불러오는 중…", "Loading the app list…")    \
+    X(STORE_LOAD_FAIL,    "앱 목록을 불러오지 못했습니다: %s",                 \
+                          "Couldn't load the app list: %s")                     \
+    X(STORE_NO_WIFI,      "Wi-Fi에 연결해 주세요", "Connect to Wi-Fi")          \
+    X(STORE_NO_SD,        "SD 카드를 넣어 주세요", "Insert an SD card")         \
+    X(STORE_INSTALLED,    "설치됨",              "Installed")                   \
+    X(STORE_UPDATE,       "업데이트",            "Update")                      \
+    X(STORE_NEEDS_FW,     "펌웨어 필요",         "Needs firmware")              \
+    X(STORE_NOT_LISTED,   "목록에 없음",         "Not listed")                  \
+    X(STORE_INSTALL,      "설치",                "Install")                     \
+    X(STORE_DELETE_AGAIN, "한 번 더 눌러 삭제",  "Tap again to delete")         \
+    X(STORE_DOWNLOADING,  "받는 중 %d/%d",       "Downloading %d/%d")           \
+    X(STORE_INSTALL_FAIL, "설치하지 못했습니다: %s", "Install failed: %s")      \
+    X(STORE_INSTALL_OK,   "설치했습니다",        "Installed")                   \
+    X(STORE_DELETE_OK,    "삭제했습니다",        "Deleted")                     \
+    X(STORE_DELETE_FAIL,  "삭제하지 못했습니다", "Couldn't delete")             \
+    X(STORE_AUTHOR,       "만든 사람: %s",       "Author: %s")                  \
+    X(STORE_SIZE,         "크기: %u KB",         "Size: %u KB")                 \
+    X(STORE_NET,          "인터넷 접속:",        "Internet access:")            \
+    X(STORE_NET_NONE,     "인터넷 접속 안 함",   "No internet access")          \
+    X(STORE_NET_NEW,      "(새로 추가)",         "(new)")                       \
     X(SET_TIME,           "시간 설정",           "Date & Time")                  \
     X(SET_ABOUT,          "정보",                "About")                        \
     X(SET_SYSINFO,        "시스템 상태",         "System status")                \
