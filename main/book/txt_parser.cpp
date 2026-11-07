@@ -119,7 +119,10 @@ std::unique_ptr<Book> parseTxt(const uint8_t* data, size_t len, std::string titl
             bk->addRun(std::move(r));
             continue;
         }
-        if (!para.empty()) para.push_back(' ');
+        if (!para.empty()) {
+            rtrim(para);
+            para.push_back(' ');
+        }
         // trim leading whitespace of a continuation line
         size_t s = ln.find_first_not_of(" \t");
         para += (s == std::string::npos) ? std::string() : ln.substr(s);
