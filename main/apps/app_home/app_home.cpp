@@ -81,9 +81,10 @@ void HomeApp::rebuild()
         const size_t idx = shown.size() + static_cast<size_t>(j);
         ui::AppTile& t = tiles_[idx];
         t.setFont(ctx.ui_font);
-        const bool en = core::i18n::lang() == core::i18n::En && !sd[j].name_en.empty();
-        t.setLabel((en ? sd[j].name_en : sd[j].name).c_str());
-        t.setIcon(sd[j].icon.empty() ? "note" : sd[j].icon.c_str());
+        const appstore::AppManifest& m = sd[j].m;
+        const bool en = core::i18n::lang() == core::i18n::En && !m.name_en.empty();
+        t.setLabel((en ? m.name_en : m.name).c_str());
+        t.setIcon(m.icon.empty() ? "note" : m.icon.c_str());
 
         // Per-app icon.m5i (so the tile can show a custom glyph).
         if (FILE* f = std::fopen((sd[j].dir + "/icon.m5i").c_str(), "rb")) {
@@ -101,11 +102,11 @@ void HomeApp::rebuild()
             }
             std::fclose(f);
         }
-        std::string dir = sd[j].dir, entry = sd[j].entry, title = sd[j].name;
+        const std::string dir = sd[j].dir;
         AppContext c2 = ctx;
-        t.onClick([c2, dir, entry, title] {
+        t.onClick([c2, dir, m] {
             ESP_LOGI(TAG, "launch SD app %s", dir.c_str());
-            if (c2.push) c2.push(new LuaApp(dir, entry, title));
+            if (c2.push) c2.push(new LuaApp(dir, m));
         });
         place(static_cast<int>(idx), builtin_rows * kCols + j);
     }

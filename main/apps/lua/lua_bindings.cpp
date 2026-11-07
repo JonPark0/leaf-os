@@ -21,6 +21,7 @@
 #include "iconset.h"
 #include "kv.h"
 #include "lua_app.h"
+#include "url.h"
 
 namespace apps {
 namespace {
@@ -228,6 +229,15 @@ int http_get(lua_State* L)
     const char* raw_url = luaL_checkstring(L, 1);
     const int timeout = static_cast<int>(luaL_optinteger(L, 2, 8000));
     const std::string url = urlSanitize(raw_url);
+
+    LuaApp* app = LuaApp::active();
+    if (!app || !appstore::hostAllowed(app->manifest().net, url)) {
+        ESP_LOGW(TAG, "http.get to '%s' refused: host not in app.txt net",
+                 appstore::urlHost(url).c_str());
+        lua_pushnil(L);
+        lua_pushstring(L, "permission");
+        return 2;
+    }
 
     if (!hal::wifi::connected()) { lua_pushnil(L); lua_pushstring(L, "offline"); return 2; }
 

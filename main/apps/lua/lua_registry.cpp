@@ -2,49 +2,48 @@
 
 #include <algorithm>
 #include <cstdio>
-#include <cstring>
 #include <dirent.h>
 #include <sys/stat.h>
 
 #include <esp_log.h>
 
 #include "hal_storage.h"
-#include "kv.h"
+#include "installer.h"
 
 namespace apps {
 namespace {
 constexpr char TAG[] = "lua_registry";
+constexpr long kMaxManifestBytes = 4096;
+}  // namespace
 
-bool loadManifest(const std::string& dir, SdAppInfo& info)
+std::string sdAppsRoot() { return std::string(hal::storage::mountPoint()) + "/apps"; }
+
+bool readManifest(const std::string& dir, appstore::AppManifest& out)
 {
-    const std::string path = dir + "/app.txt";
-    FILE* f = std::fopen(path.c_str(), "r");
+    FILE* f = std::fopen((dir + "/app.txt").c_str(), "r");
     if (!f) return false;
-
+    std::string text;
     char buf[256];
-    while (std::fgets(buf, sizeof(buf), f)) {
-        std::string line = core::kv::trim(buf);
-        if (line.empty() || line[0] == '#') continue;
-        std::string k, v;
-        if (!core::kv::split(line, k, v)) continue;
-        if      (k == "name")    info.name = v;
-        else if (k == "name_en") info.name_en = v;
-        else if (k == "icon")    info.icon = v;
-        else if (k == "entry")   info.entry = v;
-        else if (k == "order")   info.order = std::atoi(v.c_str());
-    }
+    size_t n;
+    while ((n = std::fread(buf, 1, sizeof(buf), f)) > 0 &&
+           text.size() < static_cast<size_t>(kMaxManifestBytes))
+        text.append(buf, n);
     std::fclose(f);
-    if (info.entry.empty()) info.entry = "main.lua";
+
+    const size_t slash = dir.find_last_of('/');
+    out = appstore::parseManifest(text);
+    out.id = slash == std::string::npos ? dir : dir.substr(slash + 1);
+    if (out.name.empty()) out.name = out.id;
     return true;
 }
-
-}  // namespace
 
 int scanSdApps(SdAppInfo* out, int max)
 {
     if (hal::storage::state() != hal::storage::State::Mounted) return 0;
 
-    const std::string root = std::string(hal::storage::mountPoint()) + "/apps";
+    appstore::recoverApps();   // finish or roll back an interrupted install
+
+    const std::string root = sdAppsRoot();
     DIR* d = ::opendir(root.c_str());
     if (!d) return 0;
 
@@ -52,21 +51,23 @@ int scanSdApps(SdAppInfo* out, int max)
     struct dirent* ent;
     while (n < max && (ent = ::readdir(d)) != nullptr) {
         if (ent->d_name[0] == '.') continue;
+        if (!appstore::validId(ent->d_name)) {
+            ESP_LOGW(TAG, "skipping /apps/%s: not a valid app id", ent->d_name);
+            continue;
+        }
         const std::string dir = root + "/" + ent->d_name;
         struct stat st{};
         if (::stat(dir.c_str(), &st) != 0 || !S_ISDIR(st.st_mode)) continue;
 
         SdAppInfo info;
-        info.id = ent->d_name;
         info.dir = dir;
-        if (!loadManifest(dir, info)) { ESP_LOGD(TAG, "no app.txt in %s", dir.c_str()); continue; }
-        if (info.name.empty()) info.name = info.id;
+        if (!readManifest(dir, info.m)) { ESP_LOGD(TAG, "no app.txt in %s", dir.c_str()); continue; }
         out[n++] = std::move(info);
     }
     ::closedir(d);
 
     std::stable_sort(out, out + n, [](const SdAppInfo& a, const SdAppInfo& b) {
-        return a.order != b.order ? a.order < b.order : a.id < b.id;
+        return a.m.order != b.m.order ? a.m.order < b.m.order : a.m.id < b.m.id;
     });
     ESP_LOGI(TAG, "%d SD app(s)", n);
     return n;

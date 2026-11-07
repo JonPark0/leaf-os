@@ -23,13 +23,10 @@ constexpr int64_t kCallbackBudgetUs = 9'000'000;   // per-callback watchdog
 
 LuaApp* LuaApp::s_active_ = nullptr;
 
-LuaApp::LuaApp(std::string dir, std::string entry, std::string title)
-    : meta_{"", ""}, dir_(std::move(dir)), entry_(std::move(entry))
+LuaApp::LuaApp(std::string dir, appstore::AppManifest manifest)
+    : manifest_(std::move(manifest)), meta_{"", ""}, dir_(std::move(dir))
 {
-    const size_t slash = dir_.find_last_of('/');
-    id_hold_ = (slash == std::string::npos) ? dir_ : dir_.substr(slash + 1);
-    title_hold_ = std::move(title);
-    meta_ = AppMeta{id_hold_.c_str(), title_hold_.c_str()};
+    meta_ = AppMeta{manifest_.id.c_str(), manifest_.name.c_str()};
 }
 
 LuaApp::~LuaApp()
@@ -125,11 +122,21 @@ void LuaApp::onCreate(const AppContext& ctx)
         std::fclose(f);
     }
 
+    if (manifest_.api > kLuaApiLevel) {
+        char msg[96];
+        std::snprintf(msg, sizeof(msg), core::i18n::tr(core::i18n::LUA_NEEDS_FIRMWARE),
+                      manifest_.api, kLuaApiLevel);
+        error_ = msg;
+        ESP_LOGW(TAG, "%s needs Lua API %d, firmware has %d",
+                 manifest_.id.c_str(), manifest_.api, kLuaApiLevel);
+        return;
+    }
+
     L_ = luaL_newstate();
     if (!L_) { error_ = "out of memory (luaL_newstate)"; return; }
     luaapp_open(L_);
 
-    const std::string path = dir_ + "/" + entry_;
+    const std::string path = dir_ + "/" + manifest_.entry;
     s_active_ = this;
     armDeadline();
     if (luaL_loadfilex(L_, path.c_str(), "t") != LUA_OK) { fail("load"); return; }

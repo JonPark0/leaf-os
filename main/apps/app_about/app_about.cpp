@@ -4,6 +4,7 @@
 
 #include "hal_sys.h"
 #include "i18n.h"
+#include "lua/lua_bindings.h"
 
 namespace apps {
 namespace { using namespace core::i18n; }
@@ -47,6 +48,7 @@ void AboutApp::onCreate(const AppContext& ctx)
         "LEAF OS",
         "Lightweight/Lua EPD Application Framework",
         version,
+        "Lua 5.4 · API " + std::to_string(kLuaApiLevel),
         "",
         tr(ABOUT_HW),
         "M5Stack PaperMono-Lite (C153-Lite)",

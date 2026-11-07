@@ -12,6 +12,8 @@
  * The Lua state gets base/table/string/math/utf8/coroutine plus the host
  * libraries g / sys / store / http / json (see lua_bindings). io / os / package
  * / debug and dofile/loadfile/load are removed — the SD app is sandboxed.
+ * http.get only reaches the hosts listed in the manifest's `net`, and an app
+ * whose `api` is above kLuaApiLevel is not run.
  */
 #pragma once
 
@@ -22,6 +24,7 @@
 #include "app.h"
 #include "app_common.h"
 #include "iconset.h"
+#include "manifest.h"
 #include "widget.h"
 #include "widgets/button.h"
 
@@ -31,7 +34,7 @@ namespace apps {
 
 class LuaApp : public App {
 public:
-    LuaApp(std::string dir, std::string entry, std::string title);
+    LuaApp(std::string dir, appstore::AppManifest manifest);
     ~LuaApp() override;
 
     void onCreate(const AppContext& ctx) override;
@@ -51,6 +54,7 @@ public:
     const gfx::Font*   uiFont()  const { return ctx_.ui_font; }
     const gfx::IconSet* appIcons() const { return app_icons_.valid() ? &app_icons_ : nullptr; }
     const std::string& appDir()  const { return dir_; }
+    const appstore::AppManifest& manifest() const { return manifest_; }
     bool  timedOut() const;           // deadline hook helper
     void  armDeadline();              // reset the per-callback watchdog
     void  showBusy();                 // corner "loading…" hint before a blocking call
@@ -72,9 +76,9 @@ private:
 
     static LuaApp* s_active_;
 
-    std::string id_hold_, title_hold_;   // back AppMeta's const char*
+    appstore::AppManifest manifest_;     // backs AppMeta's const char*
     AppMeta     meta_;
-    std::string dir_, entry_;
+    std::string dir_;
     ui::Screen  screen_;
     LuaView     view_{this};
     ui::Button  back_;
