@@ -19,6 +19,7 @@
 #include <functional>
 #include <vector>
 
+#include "hal_touch.h"
 #include "screen.h"
 #include "ssd1677.h"
 #include "status_bar.h"
@@ -98,6 +99,9 @@ private:
     std::atomic<int64_t> last_input_us_{0};
     std::atomic<bool>    input_held_{false};
     bool    was_down_ = false;         // input task only
+    // Input task only. Kept across ticks: read() leaves it untouched on release,
+    // so the Up phase reports where the finger was last seen.
+    hal::touch::Point touch_pts_[2];
     int64_t first_pending_us_ = 0;     // render task only
     bool ready_ = false;
 };

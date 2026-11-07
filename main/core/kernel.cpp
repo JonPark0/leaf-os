@@ -169,7 +169,7 @@ void Kernel::stepInput()
 {
     auto& dm = DisplayManager::instance();
     hal::keys::KeyEvent kevs[8];
-    hal::touch::Point tpts[2];
+    hal::touch::Point* tpts = touch_pts_;
 
     const int64_t t = hal::sys::nowUs();
     processNav();  // apply any queued push/pop before touching the stack
