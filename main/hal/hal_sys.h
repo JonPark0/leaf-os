@@ -29,6 +29,9 @@ void* allocInternal(size_t bytes);
 // Releases a buffer from allocLarge() or allocInternal().
 void  freeBuffer(void* p);
 
+// Firmware version embedded at build time (`git describe`, e.g. "v0.1.0").
+const char* firmwareVersion();
+
 size_t freeHeapBytes();   // all heaps
 size_t freePsramBytes();  // PSRAM only
 

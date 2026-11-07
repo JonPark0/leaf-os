@@ -31,7 +31,9 @@ After the first flash, USB-CDC reset usually re-flashes without the button.
 
 Pushing a `v*` tag builds the firmware in CI and publishes a GitHub release
 (`.github/workflows/release.yml`). A tag with a hyphen, such as `v0.2.0-rc1`,
-is marked as a pre-release.
+is marked as a pre-release. The firmware takes its version from
+`git describe`, shown under 설정 → 정보: the tag on a release build, otherwise
+the nearest tag plus the commit, or the commit hash before the first tag.
 
 | Asset | Use |
 |---|---|

@@ -1,5 +1,8 @@
 #include "app_about.h"
 
+#include <string>
+
+#include "hal_sys.h"
 #include "i18n.h"
 
 namespace apps {
@@ -36,11 +39,14 @@ void AboutApp::onCreate(const AppContext& ctx)
     title_.setAlign(ui::Label::Align::Center);
     screen_.add(&title_);
 
+    const std::string version =
+        std::string(tr(ABOUT_VERSION)) + " " + hal::sys::firmwareVersion();
+
     body_.setBounds({0, bodyTop(), 480, 800 - bodyTop()});
     body_.setContent(ctx.ui_font, {
         "LEAF OS",
         "Lightweight/Lua EPD Application Framework",
-        tr(ABOUT_VERSION),
+        version,
         "",
         tr(ABOUT_HW),
         "M5Stack PaperMono-Lite (C153-Lite)",

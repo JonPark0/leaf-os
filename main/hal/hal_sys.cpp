@@ -1,5 +1,6 @@
 #include "hal_sys.h"
 
+#include <esp_app_desc.h>
 #include <esp_heap_caps.h>
 #include <esp_system.h>
 #include <esp_timer.h>
@@ -33,6 +34,8 @@ void* allocInternal(size_t bytes)
 }
 
 void freeBuffer(void* p) { heap_caps_free(p); }
+
+const char* firmwareVersion() { return esp_app_get_description()->version; }
 
 size_t freeHeapBytes() { return esp_get_free_heap_size(); }
 
