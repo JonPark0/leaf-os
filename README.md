@@ -161,3 +161,8 @@ main/apps/                 home / settings / reader / files
 tools/fontgen/             host font -> .m5f converter (Python)
 tests/                     host-native tests for book/ and gfx/text_layout
 ```
+
+## License
+
+MIT, see `LICENSE`. Bundled fonts, icons and libraries keep their own licenses,
+listed in `docs/THIRD_PARTY.md`.

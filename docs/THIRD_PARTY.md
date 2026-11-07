@@ -39,5 +39,7 @@ by `tools/fontgen`; the converted artifacts remain under the OFL.
 
 ## First-party
 
-Everything under `main/`, `components/ssd1677_otp/`, `tools/`, and `tests/` is
-original to this project.
+Everything under `main/`, `components/ssd1677_otp/`, `apps/`, `tools/`, and
+`tests/` is original to this project and released under the MIT License (see
+`LICENSE`), except the SSD1677 waveform sequencing noted above, which keeps
+M5Stack's MIT notice. Third-party components keep their own licenses.
