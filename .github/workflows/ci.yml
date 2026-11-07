@@ -4,12 +4,13 @@ on:
   push:
     branches: [main]
   pull_request:
+  workflow_call:
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -22,6 +23,8 @@ jobs:
       MAX_APP_BYTES: 2490368
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # tags give the firmware its version
 
       - name: Resolve dependencies
         shell: bash
@@ -41,7 +44,15 @@ jobs:
         shell: bash
         run: |
           . "$IDF_PATH/export.sh"
+          echo "Version: $(git describe --tags --always --dirty)" >> "$GITHUB_STEP_SUMMARY"
           idf.py build
+
+      - name: Merge flash image
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          cd build
+          python -m esptool --chip esp32s3 merge_bin -o leaf_os-merged.bin @flash_args
 
       - name: Check app size
         shell: bash
@@ -56,6 +67,7 @@ jobs:
           name: leaf-os-firmware
           path: |
             build/leaf_os.bin
+            build/leaf_os-merged.bin
             build/leaf_os.elf
             build/leaf_os.map
             build/bootloader/bootloader.bin

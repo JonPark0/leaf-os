@@ -1,0 +1,89 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  pull_request:
+    paths:
+      - .github/workflows/ci.yml
+      - .github/workflows/release.yml
+      - tools/release/**
+
+permissions:
+  contents: read
+
+jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
+  package:
+    name: Package
+    needs: ci
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: leaf-os-firmware
+          path: fw
+
+      - name: Package
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            version="$GITHUB_REF_NAME"
+          else
+            version="dev-${GITHUB_SHA::7}"
+          fi
+          bash tools/release/package.sh "$version" fw dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: leaf-os-release
+          path: dist
+          if-no-files-found: error
+
+  publish:
+    name: Publish
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: package
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: leaf-os-release
+          path: dist
+
+      - name: Create release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$GITHUB_REF_NAME"
+          flags=()
+          [[ "$tag" == *-* ]] && flags+=(--prerelease)
+          cat > notes.md <<EOF
+          ## Install
+
+          | File | Use |
+          |---|---|
+          | \`leaf-os-${tag}-full.bin\` | First install. Write at \`0x0\`. **Erases saved settings and Wi-Fi.** |
+          | \`leaf-os-${tag}-update.zip\` | Update. Keeps settings. Run the command below inside the unzipped folder. |
+          | \`leaf-os-${tag}-sd.zip\` | Unzip to the root of the SD card. |
+          | \`leaf-os-${tag}-elf.zip\` | Debug symbols for crash decoding. |
+
+          Hold the power button about 2 s until the red LED flashes to enter download mode.
+
+          \`\`\`
+          esptool.py --chip esp32s3 write_flash 0x0 leaf-os-${tag}-full.bin
+          esptool.py --chip esp32s3 write_flash @flash_args
+          \`\`\`
+
+          Fonts other than the built-in one are generated with \`tools/fontgen\` and are not included.
+          EOF
+          sed -i 's/^          //' notes.md
+          gh release create "$tag" dist/* --verify-tag --title "LEAF OS $tag" \
+            --notes-file notes.md --generate-notes "${flags[@]}"
