@@ -2,7 +2,7 @@
  * FT6336G capacitive touch (system I2C bus, addr 0x38, INT on GPIO4).
  *
  * Power and reset are gated by M5IOE1: TP_VDD_EN = PYG13, TP_RST = PYG6
- * (docs.md PinMap). Coordinates are reported in the panel's native portrait
+ * (product docs PinMap). Coordinates are reported in the panel's native portrait
  * space (480 x 800); the controller firmware clamps the active area to
  * X 5..475, Y 5..795.
  */

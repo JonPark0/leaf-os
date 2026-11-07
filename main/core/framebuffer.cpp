@@ -2,8 +2,9 @@
 
 #include <cstring>
 
-#include <esp_heap_caps.h>
 #include <esp_log.h>
+
+#include "hal_sys.h"
 
 namespace core {
 
@@ -12,7 +13,7 @@ bool Framebuffer::init()
     if (buf_ != nullptr) {
         return true;
     }
-    buf_ = static_cast<uint8_t*>(heap_caps_malloc(kPixels, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT));
+    buf_ = static_cast<uint8_t*>(hal::sys::allocLarge(kPixels));
     if (buf_ == nullptr) {
         ESP_LOGE("fb", "OOM (%u B PSRAM)", static_cast<unsigned>(kPixels));
         return false;

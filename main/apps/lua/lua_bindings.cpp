@@ -7,17 +7,14 @@
 #include <string>
 #include <vector>
 
-#include <esp_http_client.h>
 #include <esp_log.h>
 #include <cJSON.h>
-#if defined(CONFIG_MBEDTLS_CERTIFICATE_BUNDLE)
-#include <esp_crt_bundle.h>
-#endif
 
 #include "lua.hpp"
 
 #include "font.h"
 #include "framebuffer.h"
+#include "hal_http.h"
 #include "hal_power.h"
 #include "hal_wifi.h"
 #include "i18n.h"
@@ -237,43 +234,19 @@ int http_get(lua_State* L)
     // This blocks the UI task for seconds — show a "loading…" hint first.
     if (LuaApp* a = LuaApp::active()) a->showBusy();
 
-    esp_http_client_config_t cfg = {};
-    cfg.url = url.c_str();
-    cfg.timeout_ms = timeout;
-    cfg.user_agent = "M5PaperMono-Lite";
-#if defined(CONFIG_MBEDTLS_CERTIFICATE_BUNDLE)
-    cfg.crt_bundle_attach = esp_crt_bundle_attach;
-#endif
-    esp_http_client_handle_t c = esp_http_client_init(&cfg);
-    if (!c) { lua_pushnil(L); lua_pushstring(L, "init failed"); return 2; }
+    const hal::http::Response r = hal::http::get(url, timeout, kHttpMax);
 
-    esp_err_t e = esp_http_client_open(c, 0);
-    if (e != ESP_OK) {
-        esp_http_client_cleanup(c);
-        // A connect timeout blocks too; don't charge it to the script.
-        if (LuaApp* a = LuaApp::active()) a->armDeadline();
-        lua_pushnil(L); lua_pushstring(L, esp_err_to_name(e));
-        return 2;
-    }
-    esp_http_client_fetch_headers(c);
-    const int status = esp_http_client_get_status_code(c);
-
-    std::string body;
-    char buf[512];
-    for (;;) {
-        int r = esp_http_client_read(c, buf, sizeof(buf));
-        if (r <= 0) break;
-        body.append(buf, r);
-        if (body.size() >= kHttpMax) break;
-    }
-    esp_http_client_close(c);
-    esp_http_client_cleanup(c);
     // Time spent blocked in the network is not script runtime: restart the
     // watchdog so a slow server doesn't kill the app on its next instruction.
     if (LuaApp* a = LuaApp::active()) a->armDeadline();
 
-    lua_pushlstring(L, body.data(), body.size());
-    lua_pushinteger(L, status);
+    if (!r.ok) {
+        lua_pushnil(L);
+        lua_pushstring(L, r.error.c_str());
+        return 2;
+    }
+    lua_pushlstring(L, r.body.data(), r.body.size());
+    lua_pushinteger(L, r.status);
     return 2;
 }
 

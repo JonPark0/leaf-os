@@ -3,7 +3,7 @@
  *
  * Widgets draw into fb() and call invalidate(); the kernel calls flush() once
  * per tick. The manager owns the refresh policy that keeps the SSD1677 within
- * its DC-balance limits (docs.md):
+ * its DC-balance limits (product docs):
  *   - fast full-frame mono differential (~0.7 s) for 1-bit UI updates AND for
  *     app-to-app screen changes (RefreshHint::Page);
  *   - a clean OTP full mono refresh (~4 s) after kPartialLimit fast refreshes
@@ -15,8 +15,6 @@
  * controller's 800 x 480 RAM via uiToRam(), verified on hardware.
  */
 #pragma once
-
-#include <freertos/FreeRTOS.h>
 
 #include "framebuffer.h"
 #include "geometry.h"
@@ -63,7 +61,7 @@ public:
     int partialsSinceFull() const { return partialCount_; }
 
     // Hard DC-balance ceiling: after this many fast refreshes the next flush is
-    // forced full. docs.md says "approximately 10"; we sit a little above it and
+    // forced full. product docs says "approximately 10"; we sit a little above it and
     // instead try to spend the full at a screen transition (see kPartialFoldIn)
     // so a 4 s flash rarely lands mid-interaction.
     static constexpr int kPartialLimit  = 13;
@@ -86,8 +84,8 @@ private:
     uint8_t* plane2_ = nullptr;  // SSD1677 RAM2 (gray plane 2)
 
     // dirty_ / hint_ / forceFull_ are written by the input task (invalidate)
-    // and snapshotted by the render task (flush); lock_ guards them.
-    mutable portMUX_TYPE lock_ = portMUX_INITIALIZER_UNLOCKED;
+    // and snapshotted by the render task (flush); hal::sys's critical section
+    // guards them.
     Rect dirty_{};
     RefreshHint hint_        = RefreshHint::Auto;
     int partialCount_        = 0;

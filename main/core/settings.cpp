@@ -1,17 +1,15 @@
 #include "settings.h"
 
 #include <algorithm>
-#include <cstring>
 
 #include <esp_log.h>
-#include <nvs.h>
-#include <nvs_flash.h>
+
+#include "hal_nvs.h"
 
 namespace core {
 namespace {
 constexpr char TAG[] = "settings";
 constexpr char NS[]  = "settings";
-nvs_handle_t s_nvs = 0;
 }  // namespace
 
 Settings& Settings::instance()
@@ -24,63 +22,27 @@ bool Settings::init()
 {
     if (ready_) return true;
 
-    esp_err_t err = nvs_flash_init();
-    if (err == ESP_ERR_NVS_NO_FREE_PAGES || err == ESP_ERR_NVS_NEW_VERSION_FOUND) {
-        nvs_flash_erase();
-        err = nvs_flash_init();
-    }
-    if (err != ESP_OK) {
-        ESP_LOGE(TAG, "nvs_flash_init: %s", esp_err_to_name(err));
-        return false;
-    }
-    if (nvs_open(NS, NVS_READWRITE, &s_nvs) != ESP_OK) {
-        ESP_LOGE(TAG, "nvs_open failed");
-        return false;
-    }
+    if (!hal::nvs::open(NS)) return false;
 
     int32_t i;
-    if (nvs_get_i32(s_nvs, "bright", &i) == ESP_OK) brightness_ = i;
-    if (nvs_get_i32(s_nvs, "rfsize", &i) == ESP_OK) read_font_size_ = i;
-    if (nvs_get_i32(s_nvs, "rmargin", &i) == ESP_OK) read_margin_ = i;
-    if (nvs_get_i32(s_nvs, "rlextra", &i) == ESP_OK) read_line_extra_ = i;
-    if (nvs_get_i32(s_nvs, "uifsize", &i) == ESP_OK) ui_font_size_ = i;
-    if (nvs_get_i32(s_nvs, "uipad", &i) == ESP_OK) ui_row_pad_ = i;
-    if (nvs_get_i32(s_nvs, "lang", &i) == ESP_OK) language_ = i;
-    if (nvs_get_i32(s_nvs, "wauto", &i) == ESP_OK) wifi_auto_ = (i != 0);
-    if (nvs_get_i32(s_nvs, "bgauge", &i) == ESP_OK) batt_gauge_ = (i != 0);
-    if (nvs_get_i32(s_nvs, "brgauge", &i) == ESP_OK) bright_gauge_ = (i != 0);
+    if (hal::nvs::getInt("bright", &i)) brightness_ = i;
+    if (hal::nvs::getInt("rfsize", &i)) read_font_size_ = i;
+    if (hal::nvs::getInt("rmargin", &i)) read_margin_ = i;
+    if (hal::nvs::getInt("rlextra", &i)) read_line_extra_ = i;
+    if (hal::nvs::getInt("uifsize", &i)) ui_font_size_ = i;
+    if (hal::nvs::getInt("uipad", &i)) ui_row_pad_ = i;
+    if (hal::nvs::getInt("lang", &i)) language_ = i;
+    if (hal::nvs::getInt("wauto", &i)) wifi_auto_ = (i != 0);
+    if (hal::nvs::getInt("bgauge", &i)) batt_gauge_ = (i != 0);
+    if (hal::nvs::getInt("brgauge", &i)) bright_gauge_ = (i != 0);
 
-    for (const char* k : {"uifam", "rfam"}) {
-        size_t sn = 0;
-        if (nvs_get_str(s_nvs, k, nullptr, &sn) == ESP_OK && sn) {
-            std::string b(sn, '\0'); nvs_get_str(s_nvs, k, b.data(), &sn);
-            b.resize(sn ? sn - 1 : 0);
-            (std::strcmp(k, "uifam") == 0 ? ui_font_family_ : read_font_family_) = b;
-        }
-    }
-
-    size_t n = 0;
-    if (nvs_get_str(s_nvs, "font", nullptr, &n) == ESP_OK && n) {
-        std::string b(n, '\0');
-        nvs_get_str(s_nvs, "font", b.data(), &n);
-        b.resize(n ? n - 1 : 0);
-        if (!b.empty()) font_name_ = b;
-    }
-    n = 0;
-    if (nvs_get_str(s_nvs, "langc", nullptr, &n) == ESP_OK && n) {
-        std::string b(n, '\0'); nvs_get_str(s_nvs, "langc", b.data(), &n);
-        b.resize(n ? n - 1 : 0); lang_code_ = b;
-    }
-    n = 0;
-    if (nvs_get_str(s_nvs, "wssid", nullptr, &n) == ESP_OK && n) {
-        std::string b(n, '\0'); nvs_get_str(s_nvs, "wssid", b.data(), &n);
-        b.resize(n ? n - 1 : 0); wifi_ssid_ = b;
-    }
-    n = 0;
-    if (nvs_get_str(s_nvs, "wpass", nullptr, &n) == ESP_OK && n) {
-        std::string b(n, '\0'); nvs_get_str(s_nvs, "wpass", b.data(), &n);
-        b.resize(n ? n - 1 : 0); wifi_pass_ = b;
-    }
+    hal::nvs::getStr("uifam", &ui_font_family_);
+    hal::nvs::getStr("rfam", &read_font_family_);
+    std::string font;
+    if (hal::nvs::getStr("font", &font) && !font.empty()) font_name_ = font;
+    hal::nvs::getStr("langc", &lang_code_);
+    hal::nvs::getStr("wssid", &wifi_ssid_);
+    hal::nvs::getStr("wpass", &wifi_pass_);
 
     ready_ = true;
     ESP_LOGI(TAG, "loaded (bright=%d rfsize=%d ssid='%s')",
@@ -88,9 +50,9 @@ bool Settings::init()
     return true;
 }
 
-void Settings::putInt(const char* k, int32_t v) { if (s_nvs) nvs_set_i32(s_nvs, k, v); }
-void Settings::putStr(const char* k, const std::string& v) { if (s_nvs) nvs_set_str(s_nvs, k, v.c_str()); }
-void Settings::commit() { if (s_nvs) nvs_commit(s_nvs); }
+void Settings::putInt(const char* k, int32_t v) { hal::nvs::putInt(k, v); }
+void Settings::putStr(const char* k, const std::string& v) { hal::nvs::putStr(k, v); }
+void Settings::commit() { hal::nvs::commit(); }
 
 void Settings::setBrightnessPerMille(int v)
 {

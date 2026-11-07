@@ -1,10 +1,10 @@
 #include "app_time.h"
+#include "hal_sys.h"
 
 #include <cstdio>
 #include <sys/time.h>
 
 #include <esp_log.h>
-#include <esp_timer.h>
 
 #include "hal_wifi.h"
 #include "i18n.h"
@@ -110,7 +110,7 @@ void TimeApp::onCreate(const AppContext& ctx)
         }
         hal::wifi::syncTimeSoon();
         ntp_baseline_ = hal::wifi::ntpSyncCount();
-        ntp_deadline_us_ = esp_timer_get_time() + 15'000'000;  // 15 s
+        ntp_deadline_us_ = hal::sys::nowUs() + 15'000'000;  // 15 s
         status_.setText(tr(TIME_NTP_WAIT));
         status2_.setText("");
     });
@@ -140,7 +140,7 @@ void TimeApp::onTick()
         std::snprintf(b, sizeof(b), tr(TIME_SYNC_OK_FMT),
                       dt_.year, dt_.month, dt_.day, dt_.hour, dt_.minute);
         status2_.setText(b);
-    } else if (esp_timer_get_time() > ntp_deadline_us_) {
+    } else if (hal::sys::nowUs() > ntp_deadline_us_) {
         ntp_deadline_us_ = 0;
         status2_.setText(tr(TIME_SYNC_TIMEOUT));
     }

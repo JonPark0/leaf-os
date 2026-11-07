@@ -14,7 +14,7 @@ App* makeSettings() { return new SettingsApp(); }
 App* makeReader()   { return new BooksApp(); }
 App* makeFiles()    { return new FilesApp(); }
 
-// Clock / Draw / Memo used to be built-in PlaceholderApp tiles; they are being
+// Clock / Draw / Memo used to be built-in placeholder tiles; they are being
 // reimplemented as SD Lua apps (/sd/apps/<id>/), so they no longer ship in the
 // firmware. The APP_CLOCK / APP_SKETCH / APP_MEMO i18n strings are kept for
 // those SD apps' manifests.
