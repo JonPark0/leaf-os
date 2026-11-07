@@ -101,3 +101,20 @@ jobs:
 
       - name: Check syntax
         run: find apps -name '*.lua' -print0 | xargs -0 -n1 luac5.4 -p
+
+  catalog:
+    name: App catalog
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # --base compares against the target branch
+
+      - name: Validate apps and build the catalog
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          args=()
+          [[ -n "$BASE_REF" ]] && args+=(--base "origin/$BASE_REF")
+          python3 tools/apps/build_catalog.py --out site "${args[@]}"

@@ -169,7 +169,7 @@ main/gfx/                  font binary loader, glyph cache, text layout
 main/ui/                   self-contained widget library
 main/book/                 txt/epub parsers, paginator (also builds on host)
 main/apps/                 home / settings / reader / files / Lua app host
-apps/                      SD Lua apps (copy to /sd/apps/)
+apps/                      SD Lua apps, published to the on-device app catalog
 tools/fontgen/             host font -> .m5f converter (Python)
 tests/                     host-native tests for book/ and gfx/text_layout
 ```

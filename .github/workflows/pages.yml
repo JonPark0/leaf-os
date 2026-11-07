@@ -1,0 +1,45 @@
+name: App catalog
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "apps/**"
+      - "tools/apps/**"
+      - ".github/workflows/pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build the catalog
+        run: python3 tools/apps/build_catalog.py --out site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}catalog/v1/index.json
+    steps:
+      - id: deploy
+        uses: actions/deploy-pages@v4
