@@ -23,16 +23,25 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Build
+      - name: Resolve dependencies
         shell: bash
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          # The git dependency hashes in dependencies.lock cover files as
+          # checked out with CRLF line endings.
+          git config --global core.autocrlf true
           . "$IDF_PATH/export.sh"
-          idf.py build
+          idf.py reconfigure
 
       - name: Check dependency lock is unchanged
         shell: bash
         run: git diff --exit-code dependencies.lock
+
+      - name: Build
+        shell: bash
+        run: |
+          . "$IDF_PATH/export.sh"
+          idf.py build
 
       - name: Check app size
         shell: bash

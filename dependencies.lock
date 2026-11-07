@@ -687,6 +687,7 @@ dependencies:
       type: service
     version: 1.22.3
   m5ioe1:
+    component_hash: 5d81a2477055b347e526a8fd58b26ac9acceb4c399fb8891738282b3486a7adc
     dependencies:
     - name: idf
       version: '>=4.4'
@@ -699,6 +700,7 @@ dependencies:
       type: git
     version: 846eec7d05e25c09013be2acdb8804487f48a62e
   m5pm1:
+    component_hash: b702f2299f29c6b9671eb7927a9f94105cb845e32a7628d3c5aa8d222872e955
     dependencies:
     - name: idf
       version: '>=4.4'
