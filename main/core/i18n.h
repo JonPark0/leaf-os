@@ -129,7 +129,7 @@ enum Lang { Ko = 0, En = 1 };
     X(WIFI_SCANNING_FULL, "Wi-Fi 검색 중…",      "Scanning Wi-Fi…")             \
     X(WIFI_NO_NETWORKS,   "(검색된 네트워크 없음)", "(no networks found)")         \
     /* about page */                                                            \
-    X(ABOUT_VERSION,      "버전 0.1 (2026)",     "Version 0.1 (2026)")           \
+    X(ABOUT_VERSION,      "버전",                "Version")                      \
     X(ABOUT_HW,           "하드웨어",            "Hardware")                     \
     X(ABOUT_FW,           "프레임워크",          "Frameworks")                   \
     X(ABOUT_FONT_HDR,     "글꼴",                "Fonts")                        \

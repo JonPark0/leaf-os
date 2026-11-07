@@ -56,6 +56,7 @@ idf_component_register(
         esp_netif
         esp_timer
         esp_rom
+        esp_app_format
         nvs_flash
         esp_http_client
         esp-tls
