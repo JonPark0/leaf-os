@@ -18,7 +18,14 @@ class Widget {
 public:
     virtual ~Widget() = default;
 
-    void setBounds(core::Rect b) { bounds_ = b; }
+    // Moving or resizing repaints both the old and the new area.
+    void setBounds(core::Rect b)
+    {
+        if (b == bounds_) return;
+        invalidate();
+        bounds_ = b;
+        invalidate();
+    }
     core::Rect bounds() const { return bounds_; }
 
     void setScreen(Screen* s) { screen_ = s; }
