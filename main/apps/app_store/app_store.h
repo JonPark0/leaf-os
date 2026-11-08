@@ -19,7 +19,7 @@
 #include "widgets/button.h"
 #include "widgets/label.h"
 #include "widgets/list_view.h"
-#include "widgets/text_block.h"
+#include "widgets/text_view.h"
 
 namespace apps {
 
@@ -81,7 +81,7 @@ private:
     ui::Screen screen_;
     ui::Button back_;
     ui::Label  title_;
-    ui::TextBlock body_;
+    ui::TextView body_;
     ui::Button install_;
     ui::Button delete_;
     ui::Label  hint_;

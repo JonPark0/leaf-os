@@ -33,6 +33,14 @@ inline void makeBackButton(ui::Button& btn, const AppContext& ctx, const char* l
 
 inline int bodyTop() { return ui::StatusBar::kHeight + 60; }
 
+// printf-style `fmt` with one "%s" (e.g. a translated "Author: %s").
+inline std::string formatArg(const char* fmt, const std::string& arg)
+{
+    char buf[160];
+    std::snprintf(buf, sizeof(buf), fmt, arg.c_str());
+    return buf;
+}
+
 // `err` from hal_http (or code built on it) as one line that fits the screen:
 // connection-level failures (no route, timeout, captive portal) read as "can't
 // reach the internet"; anything else is put into `fmt` ("...: %s").
@@ -41,9 +49,7 @@ inline std::string netFailText(const char* fmt, const std::string& err)
     if (err.rfind("ESP_ERR_HTTP_", 0) == 0 || err.rfind("ESP_ERR_ESP_TLS_", 0) == 0 ||
         err == "ESP_FAIL" || err == "connection closed" || err == "read failed")
         return core::i18n::tr(core::i18n::STORE_NET_FAIL);
-    char buf[160];
-    std::snprintf(buf, sizeof(buf), fmt, err.c_str());
-    return buf;
+    return formatArg(fmt, err);
 }
 
 }  // namespace apps

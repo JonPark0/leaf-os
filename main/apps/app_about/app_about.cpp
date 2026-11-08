@@ -9,23 +9,6 @@
 namespace apps {
 namespace { using namespace core::i18n; }
 
-void AboutApp::Body::draw(core::Framebuffer& fb)
-{
-    fb.fillRect(bounds_, core::kWhite);
-    if (font_ == nullptr || !font_->valid()) return;
-
-    const int lh = font_->lineHeight();
-    int y = bounds_.y + 8;
-    for (const std::string& s : lines_) {
-        if (s.empty()) { y += lh / 2; continue; }   // blank line -> half gap
-        if (y + lh > bounds_.y + bounds_.h) break;
-        const int w = font_->measure(s.c_str());
-        font_->draw(fb, bounds_.x + (bounds_.w - w) / 2, y + font_->ascent(),
-                    s.c_str(), core::kBlack);
-        y += lh;
-    }
-}
-
 void AboutApp::onCreate(const AppContext& ctx)
 {
     App::onCreate(ctx);
@@ -43,8 +26,10 @@ void AboutApp::onCreate(const AppContext& ctx)
     const std::string version =
         std::string(tr(ABOUT_VERSION)) + " " + hal::sys::firmwareVersion();
 
-    body_.setBounds({0, bodyTop(), 480, 800 - bodyTop()});
-    body_.setContent(ctx.ui_font, {
+    body_.setFont(ctx.ui_font);
+    body_.setAlign(ui::TextView::Align::Center);
+    body_.setBounds({0, bodyTop() + 8, 480, 800 - bodyTop() - 8});
+    body_.setLines({
         "LEAF OS",
         "Lightweight/Lua EPD Application Framework",
         version,
