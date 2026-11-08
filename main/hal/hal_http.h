@@ -5,6 +5,7 @@
 #pragma once
 
 #include <cstddef>
+#include <functional>
 #include <string>
 
 namespace hal::http {
@@ -28,6 +29,14 @@ struct Download {
     std::string sha256;       // lower-case hex of the bytes written
     std::string error;        // set when !ok
 };
+
+// Receives each chunk of a body; return false to stop (the result's error is
+// then "sink").
+using Sink = std::function<bool(const char* data, size_t n)>;
+
+// Stream a GET into `sink`, hashing on the way. Fails on a non-200 status, a
+// short body, or once more than `max_bytes` arrive. Blocks for the whole body.
+Download stream(const std::string& url, size_t max_bytes, int timeout_ms, const Sink& sink);
 
 // Stream a GET into `path` (created or truncated), hashing on the way. Fails
 // on a non-200 status or once more than `max_bytes` arrive; the partial file

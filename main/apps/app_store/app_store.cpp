@@ -40,52 +40,8 @@ std::string fmt(const char* f, const std::string& a)
     return buf;
 }
 
-// `err` from hal_http or the installer, as one line that fits the screen:
-// connection-level failures (no route, timeout, captive portal) read as "can't
-// reach the internet"; anything else goes into `f` as is.
-std::string failText(const char* f, const std::string& err)
-{
-    if (err.rfind("ESP_ERR_HTTP_", 0) == 0 || err.rfind("ESP_ERR_ESP_TLS_", 0) == 0 ||
-        err == "ESP_FAIL" || err == "connection closed" || err == "read failed")
-        return tr(STORE_NET_FAIL);
-    return fmt(f, err);
-}
-
-// Byte length of the UTF-8 sequence starting with `c`.
-int u8len(unsigned char c) { return c < 0x80 ? 1 : c < 0xE0 ? 2 : c < 0xF0 ? 3 : 4; }
 
 }  // namespace
-
-// ---- TextBlock --------------------------------------------------------------
-
-void TextBlock::draw(core::Framebuffer& fb)
-{
-    if (!font_ || !font_->valid()) return;
-    const int lh = font_->lineHeight();
-    const int max_w = bounds_.w - 24;
-    int y = bounds_.y;
-    for (const std::string& line : lines_) {
-        size_t start = 0;
-        do {
-            // Longest prefix that fits; prefer to break after a space.
-            size_t end = start, last_space = std::string::npos;
-            while (end < line.size()) {
-                const size_t next = end + u8len(static_cast<unsigned char>(line[end]));
-                if (font_->measure(line.c_str() + start, static_cast<int>(next - start)) > max_w) break;
-                if (line[end] == ' ') last_space = next;
-                end = next;
-            }
-            if (end < line.size() && last_space != std::string::npos && last_space > start) end = last_space;
-            if (end == start && start < line.size()) end = start + u8len(static_cast<unsigned char>(line[start]));
-            if (y + lh > bounds_.y + bounds_.h) return;
-            font_->draw(fb, bounds_.x + 12, y + font_->ascent(), line.c_str() + start,
-                        core::kBlack, static_cast<int>(end - start));
-            y += lh;
-            start = end;
-        } while (start < line.size());
-        if (line.empty()) y += lh;
-    }
-}
 
 // ---- StoreApp ---------------------------------------------------------------
 
@@ -160,7 +116,7 @@ void StoreApp::load()
         status_.setText("");
     } else {
         ESP_LOGW(TAG, "catalog: %s", err.c_str());
-        status_.setText(failText(tr(STORE_LOAD_FAIL), err));
+        status_.setText(netFailText(tr(STORE_LOAD_FAIL), err));
     }
     rebuildRows();
 }
@@ -344,7 +300,7 @@ void StoreDetailApp::onTick()
         if (--start_in_ticks_ > 0) return;
         start_in_ticks_ = -1;
         if (installer_.begin(base_, entry_) != S::Running) {
-            hint_.setText(failText(tr(STORE_INSTALL_FAIL), installer_.error()));
+            hint_.setText(netFailText(tr(STORE_INSTALL_FAIL), installer_.error()));
             return;
         }
     }
@@ -360,7 +316,7 @@ void StoreDetailApp::onTick()
         hint_.setText(tr(STORE_INSTALL_OK));
         refresh();
     } else {
-        hint_.setText(failText(tr(STORE_INSTALL_FAIL), installer_.error()));
+        hint_.setText(netFailText(tr(STORE_INSTALL_FAIL), installer_.error()));
     }
 }
 

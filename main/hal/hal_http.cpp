@@ -59,8 +59,7 @@ Response get(const std::string& url, int timeout_ms, size_t max_body)
     return r;
 }
 
-Download download(const std::string& url, const std::string& path,
-                  size_t max_bytes, int timeout_ms)
+Download stream(const std::string& url, size_t max_bytes, int timeout_ms, const Sink& sink)
 {
     Download d;
     esp_http_client_handle_t c = openClient(url, timeout_ms);
@@ -81,14 +80,6 @@ Download download(const std::string& url, const std::string& path,
         return d;
     }
 
-    FILE* f = std::fopen(path.c_str(), "wb");
-    if (!f) {
-        esp_http_client_close(c);
-        esp_http_client_cleanup(c);
-        d.error = "cannot write";
-        return d;
-    }
-
     mbedtls_sha256_context sha;
     mbedtls_sha256_init(&sha);
     mbedtls_sha256_starts(&sha, 0);
@@ -102,17 +93,14 @@ Download download(const std::string& url, const std::string& path,
         if (n == 0) break;
         d.size += static_cast<size_t>(n);
         if (d.size > max_bytes) { d.error = "too large"; failed = true; break; }
-        if (std::fwrite(buf.get(), 1, static_cast<size_t>(n), f) != static_cast<size_t>(n)) {
-            d.error = "cannot write"; failed = true; break;
-        }
         mbedtls_sha256_update(&sha, reinterpret_cast<const unsigned char*>(buf.get()),
                               static_cast<size_t>(n));
+        if (!sink(buf.get(), static_cast<size_t>(n))) { d.error = "sink"; failed = true; break; }
     }
-    if (!esp_http_client_is_complete_data_received(c) && !failed) {
+    if (!failed && !esp_http_client_is_complete_data_received(c)) {
         d.error = "connection closed";
         failed = true;
     }
-    if (std::fclose(f) != 0 && !failed) { d.error = "cannot write"; failed = true; }
     esp_http_client_close(c);
     esp_http_client_cleanup(c);
 
@@ -126,6 +114,23 @@ Download download(const std::string& url, const std::string& path,
         d.sha256.push_back(kHex[b & 15]);
     }
     d.ok = !failed;
+    return d;
+}
+
+Download download(const std::string& url, const std::string& path,
+                  size_t max_bytes, int timeout_ms)
+{
+    FILE* f = std::fopen(path.c_str(), "wb");
+    if (!f) {
+        Download d;
+        d.error = "cannot write";
+        return d;
+    }
+    Download d = stream(url, max_bytes, timeout_ms, [f](const char* data, size_t n) {
+        return std::fwrite(data, 1, n, f) == n;
+    });
+    if (d.error == "sink") d.error = "cannot write";
+    if (std::fclose(f) != 0 && d.ok) { d.ok = false; d.error = "cannot write"; }
     return d;
 }
 
