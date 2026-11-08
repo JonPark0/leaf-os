@@ -45,6 +45,7 @@ const char* iconForName(const char* name)
 void FilesApp::onCreate(const AppContext& ctx)
 {
     setupPage(ctx, "", TitleStyle::BesideBack);   // the title shows the folder path
+    title_.setElideHead(true);                     // keep the current folder in view
 
     // Back goes up a folder first, and only leaves the app at the root.
     back_.onClick([this] {

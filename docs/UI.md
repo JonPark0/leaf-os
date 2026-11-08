@@ -60,7 +60,7 @@ apps, the reader) rely on that, and the pull-down gesture will claim it.
 
 | Widget | Use |
 |---|---|
-| `Label` | one line; text wider than the box ends in `...` |
+| `Label` | one line; text wider than the box ends in `...` (or starts with it, `setElideHead`, for paths) |
 | `TextView` | read-only paragraphs: wraps, pages with a pager column and vertical swipes |
 | `ListView` | tappable rows, paged, optional icon / detail / per-row font |
 | `Button`, `Checkbox`, `TextField`, `Keyboard` | input |
