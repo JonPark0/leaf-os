@@ -23,6 +23,17 @@ bool spawnPinned(TaskFn fn, const char* name, uint32_t stack_bytes, void* arg,
                                    core) == pdPASS;
 }
 
+void endTask()
+{
+    vTaskDelete(nullptr);
+    for (;;) {}
+}
+
+void restart()
+{
+    esp_restart();
+}
+
 void* allocLarge(size_t bytes)
 {
     return heap_caps_malloc(bytes, MALLOC_CAP_SPIRAM | MALLOC_CAP_8BIT);

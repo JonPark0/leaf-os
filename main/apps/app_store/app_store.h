@@ -19,20 +19,9 @@
 #include "widgets/button.h"
 #include "widgets/label.h"
 #include "widgets/list_view.h"
+#include "widgets/text_block.h"
 
 namespace apps {
-
-// Word-wrapped lines of text, top-aligned.
-class TextBlock : public ui::Widget {
-public:
-    void setFont(const gfx::Font* f) { font_ = f; invalidate(); }
-    void setLines(std::vector<std::string> lines) { lines_ = std::move(lines); invalidate(); }
-    void draw(core::Framebuffer& fb) override;
-
-private:
-    const gfx::Font* font_ = nullptr;
-    std::vector<std::string> lines_;
-};
 
 class StoreApp : public App {
 public:
@@ -92,7 +81,7 @@ private:
     ui::Screen screen_;
     ui::Button back_;
     ui::Label  title_;
-    TextBlock  body_;
+    ui::TextBlock body_;
     ui::Button install_;
     ui::Button delete_;
     ui::Label  hint_;

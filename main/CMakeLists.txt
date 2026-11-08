@@ -37,7 +37,9 @@ idf_component_register(
         "apps/app_sysinfo"
         "apps/lua"
         "apps/app_store"
+        "apps/app_update"
         "appstore"
+        "ota"
     INCLUDE_DIRS
         "."
         "hal"
@@ -47,6 +49,7 @@ idf_component_register(
         "ui"
         "apps"
         "appstore"
+        "ota"
     REQUIRES
         ssd1677_otp
         driver
@@ -60,6 +63,7 @@ idf_component_register(
         esp_timer
         esp_rom
         esp_app_format
+        app_update
         nvs_flash
         esp_http_client
         esp-tls

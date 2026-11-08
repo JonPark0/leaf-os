@@ -24,6 +24,9 @@ CONFIG_SPIRAM_USE_MALLOC=y
 CONFIG_SPIRAM_MALLOC_ALWAYSINTERNAL=16384
 CONFIG_SPIRAM_TRY_ALLOCATE_WIFI_LWIP=y
 
+# --- OTA: a new image boots on probation and rolls back if it never confirms ---
+CONFIG_BOOTLOADER_APP_ROLLBACK_ENABLE=y
+
 # --- Partition table (custom, see partitions.csv) ---
 CONFIG_PARTITION_TABLE_CUSTOM=y
 CONFIG_PARTITION_TABLE_CUSTOM_FILENAME="partitions.csv"

@@ -1,4 +1,7 @@
-name: App catalog
+name: Pages
+
+# The site holds the app catalog (catalog/v1/) and the firmware update feed
+# (firmware/v1/). A deploy replaces the whole site, so every run builds both.
 
 on:
   push:
@@ -6,7 +9,10 @@ on:
     paths:
       - "apps/**"
       - "tools/apps/**"
+      - "tools/release/build_feed.py"
       - ".github/workflows/pages.yml"
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -25,6 +31,18 @@ jobs:
 
       - name: Build the catalog
         run: python3 tools/apps/build_catalog.py --out site
+
+      - name: Build the firmware feed from the latest release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1                   --json tagName --jq '.[0].tagName // empty')
+          if [[ -z "$tag" ]]; then
+            echo "no release yet; skipping the firmware feed"
+            exit 0
+          fi
+          gh release download "$tag" --pattern '*-update.zip' --dir dl
+          python3 tools/release/build_feed.py --tag "$tag" --zip "dl/leaf-os-${tag}-update.zip"             --notes "https://github.com/${GITHUB_REPOSITORY}/releases/tag/${tag}" --out site
 
       - uses: actions/upload-pages-artifact@v3
         with:

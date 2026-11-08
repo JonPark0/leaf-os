@@ -22,6 +22,12 @@ using TaskFn = void (*)(void* arg);
 bool spawnPinned(TaskFn fn, const char* name, uint32_t stack_bytes, void* arg,
                  int priority, int core);
 
+// Ends the calling task (a task started by spawnPinned must not return).
+[[noreturn]] void endTask();
+
+// Reboots the chip.
+[[noreturn]] void restart();
+
 // Byte-addressable buffer in PSRAM. Returns nullptr on failure.
 void* allocLarge(size_t bytes);
 // Byte-addressable buffer in internal RAM. Returns nullptr on failure.

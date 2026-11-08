@@ -140,3 +140,24 @@ STORE_SIZE = 大小: %u KB
 STORE_NET = 访问网络:
 STORE_NET_NONE = 不访问网络
 STORE_NET_NEW = (新增)
+
+# firmware update
+SET_UPDATE = 固件更新
+UPD_CURRENT = 当前版本: %s
+UPD_LATEST = 最新版本: %s
+UPD_UNKNOWN = 未检查
+UPD_CHECK = 检查
+UPD_INSTALL = 更新
+UPD_CANCEL = 取消
+UPD_CHECKING = 正在检查…
+UPD_UP_TO_DATE = 已是最新版本
+UPD_AVAILABLE = 有新版本
+UPD_DOWNLOADING = 正在下载 %d%%
+UPD_RESTARTING = 正在重新启动…
+UPD_CHECK_FAIL = 检查失败: %s
+UPD_FAIL = 更新失败: %s
+UPD_CANCELLED = 已取消更新
+UPD_LOW_BATTERY = 请将电池充电至30%以上
+UPD_ROLLED_BACK = %s 未能启动，已恢复
+UPD_NOTES = 更新内容:
+UPD_KEEP_ON = 更新期间请停留在此页面

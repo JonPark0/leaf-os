@@ -77,6 +77,8 @@ jobs:
 
           Hold the power button about 2 s until the red LED flashes to enter download mode.
 
+          From v0.3.0 on, 설정 → 펌웨어 업데이트 installs new releases over Wi-Fi. Devices on v0.2.0 or older install v0.3.0 once with the update zip.
+
           \`\`\`
           esptool.py --chip esp32s3 write_flash 0x0 leaf-os-${tag}-full.bin
           esptool.py --chip esp32s3 write_flash @flash_args

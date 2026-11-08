@@ -24,6 +24,7 @@
 #include "hal_board.h"
 #include "hal_i2c.h"
 #include "hal_keys.h"
+#include "hal_ota.h"
 #include "hal_power.h"
 #include "hal_rtc.h"
 #include "hal_storage.h"
@@ -183,6 +184,10 @@ extern "C" void app_main()
 
     static apps::HomeApp home;
     kernel.setRootApp(&home);
+
+    // A freshly updated image is on probation until it has run this long; a
+    // crash or reset before then boots the previous one (docs/design/ota-update.md).
+    hal::ota::confirmAfter(10000);
 
     ESP_LOGI(TAG, "home ready");
     kernel.run();  // never returns

@@ -140,3 +140,24 @@ STORE_SIZE = サイズ: %u KB
 STORE_NET = インターネット接続:
 STORE_NET_NONE = インターネットに接続しない
 STORE_NET_NEW = (新規)
+
+# firmware update
+SET_UPDATE = ファームウェア更新
+UPD_CURRENT = 現在のバージョン: %s
+UPD_LATEST = 最新バージョン: %s
+UPD_UNKNOWN = 未確認
+UPD_CHECK = 確認
+UPD_INSTALL = 更新
+UPD_CANCEL = キャンセル
+UPD_CHECKING = 確認中…
+UPD_UP_TO_DATE = 最新です
+UPD_AVAILABLE = 新しいバージョンがあります
+UPD_DOWNLOADING = ダウンロード中 %d%%
+UPD_RESTARTING = 再起動します…
+UPD_CHECK_FAIL = 確認できませんでした: %s
+UPD_FAIL = 更新できませんでした: %s
+UPD_CANCELLED = 更新をキャンセルしました
+UPD_LOW_BATTERY = バッテリーを30%以上充電してください
+UPD_ROLLED_BACK = %s は起動できなかったため元に戻しました
+UPD_NOTES = 変更内容:
+UPD_KEEP_ON = 更新中はこの画面のままにしてください

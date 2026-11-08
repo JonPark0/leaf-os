@@ -83,6 +83,26 @@ enum Lang { Ko = 0, En = 1 };
     X(STORE_NET,          "인터넷 접속:",        "Internet access:")            \
     X(STORE_NET_NONE,     "인터넷 접속 안 함",   "No internet access")          \
     X(STORE_NET_NEW,      "(새로 추가)",         "(new)")                       \
+    /* firmware update */                                                       \
+    X(SET_UPDATE,         "펌웨어 업데이트",     "Firmware update")              \
+    X(UPD_CURRENT,        "현재 버전: %s",       "Installed: %s")                \
+    X(UPD_LATEST,         "최신 버전: %s",       "Latest: %s")                   \
+    X(UPD_UNKNOWN,        "확인 전",             "not checked")                  \
+    X(UPD_CHECK,          "확인",                "Check")                        \
+    X(UPD_INSTALL,        "업데이트",            "Update")                       \
+    X(UPD_CANCEL,         "취소",                "Cancel")                       \
+    X(UPD_CHECKING,       "확인하는 중…",        "Checking…")                    \
+    X(UPD_UP_TO_DATE,     "최신 버전입니다",     "Up to date")                   \
+    X(UPD_AVAILABLE,      "새 버전이 있습니다",  "A new version is available")   \
+    X(UPD_DOWNLOADING,    "받는 중 %d%%",        "Downloading %d%%")             \
+    X(UPD_RESTARTING,     "다시 시작합니다…",    "Restarting…")                  \
+    X(UPD_CHECK_FAIL,     "확인하지 못했습니다: %s", "Check failed: %s")         \
+    X(UPD_FAIL,           "업데이트하지 못했습니다: %s", "Update failed: %s")    \
+    X(UPD_CANCELLED,      "업데이트를 취소했습니다", "Update cancelled")         \
+    X(UPD_LOW_BATTERY,    "배터리를 30% 이상 충전해 주세요", "Charge the battery to 30% or more") \
+    X(UPD_ROLLED_BACK,    "%s 업데이트가 시작되지 않아 되돌렸습니다", "%s failed to start and was rolled back") \
+    X(UPD_NOTES,          "변경 내용:",          "Release notes:")               \
+    X(UPD_KEEP_ON,        "업데이트 중에는 화면을 나가지 마세요", "Stay on this screen while updating") \
     X(SET_TIME,           "시간 설정",           "Date & Time")                  \
     X(SET_ABOUT,          "정보",                "About")                        \
     X(SET_SYSINFO,        "시스템 상태",         "System status")                \
