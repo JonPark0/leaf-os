@@ -33,13 +33,6 @@ std::string summary(const appstore::AppManifest& m)
     return (lang() == En && !m.summary_en.empty()) ? m.summary_en : m.summary;
 }
 
-std::string fmt(const char* f, const std::string& a)
-{
-    char buf[160];
-    std::snprintf(buf, sizeof(buf), f, a.c_str());
-    return buf;
-}
-
 
 }  // namespace
 
@@ -123,8 +116,8 @@ void StoreApp::load()
 
 void StoreApp::rebuildRows()
 {
-    SdAppInfo sd[kMaxSdApps];
-    const int sdn = scanSdApps(sd, kMaxSdApps);
+    const std::vector<SdAppInfo> sd = scanSdApps(kMaxSdApps);
+    const int sdn = static_cast<int>(sd.size());
     std::vector<bool> matched(static_cast<size_t>(sdn), false);
 
     rows_.clear();
@@ -187,6 +180,7 @@ void StoreDetailApp::onCreate(const AppContext& ctx)
     const int lh = ctx.ui_font ? ctx.ui_font->lineHeight() : 30;
     const int btn_y = 800 - 64 - 3 * lh - 40;
     body_.setFont(ctx.ui_font);
+    body_.setGapPercent(100);
     body_.setBounds({0, bodyTop(), 480, btn_y - bodyTop() - 12});
     screen_.add(&body_);
 
@@ -222,7 +216,7 @@ void StoreDetailApp::refresh()
     else
         ver += has_entry_ ? entry_.m.version_str : local_ver;
     lines.push_back(ver);
-    if (!m.author.empty()) lines.push_back(fmt(tr(STORE_AUTHOR), m.author));
+    if (!m.author.empty()) lines.push_back(formatArg(tr(STORE_AUTHOR), m.author));
     if (has_entry_) {
         char size[48];
         std::snprintf(size, sizeof(size), tr(STORE_SIZE),

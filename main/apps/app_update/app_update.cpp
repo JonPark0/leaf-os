@@ -22,13 +22,6 @@ constexpr int64_t kRestartDelayUs = 2'500'000; // time to paint "restarting…"
 
 // Outlives any one screen: its task may still be winding down after Back.
 ota::Updater s_updater;
-
-std::string fmt(const char* f, const std::string& a)
-{
-    char buf[160];
-    std::snprintf(buf, sizeof(buf), f, a.c_str());
-    return buf;
-}
 }  // namespace
 
 void UpdateApp::onCreate(const AppContext& ctx)
@@ -48,6 +41,7 @@ void UpdateApp::onCreate(const AppContext& ctx)
     const int lh = ctx.ui_font ? ctx.ui_font->lineHeight() : 30;
     const int btn_y = 800 - 64 - 3 * lh - 40;
     body_.setFont(ctx.ui_font);
+    body_.setGapPercent(100);
     body_.setBounds({0, bodyTop(), 480, btn_y - bodyTop() - 12});
     screen_.add(&body_);
 
@@ -75,8 +69,8 @@ void UpdateApp::onDestroy()
 void UpdateApp::refresh()
 {
     std::vector<std::string> lines;
-    lines.push_back(fmt(tr(UPD_CURRENT), hal::sys::firmwareVersion()));
-    lines.push_back(fmt(tr(UPD_LATEST), has_feed_ ? feed_.version : std::string(tr(UPD_UNKNOWN))));
+    lines.push_back(formatArg(tr(UPD_CURRENT), hal::sys::firmwareVersion()));
+    lines.push_back(formatArg(tr(UPD_LATEST), has_feed_ ? feed_.version : std::string(tr(UPD_UNKNOWN))));
     if (has_feed_ && newer_ && !feed_.notes.empty()) {
         lines.emplace_back("");
         lines.emplace_back(tr(UPD_NOTES));
@@ -85,7 +79,7 @@ void UpdateApp::refresh()
     const std::string rolled = hal::ota::rolledBackVersion();
     if (!rolled.empty()) {
         lines.emplace_back("");
-        lines.push_back(fmt(tr(UPD_ROLLED_BACK), rolled));
+        lines.push_back(formatArg(tr(UPD_ROLLED_BACK), rolled));
     }
     if (phase_ == Phase::Updating) {
         lines.emplace_back("");
@@ -134,7 +128,7 @@ void UpdateApp::startUpdate()
     if (!hal::wifi::connected()) { status_.setText(tr(STORE_NO_WIFI)); return; }
     if (hal::power::batteryPercent() < kMinBatteryPct) { status_.setText(tr(UPD_LOW_BATTERY)); return; }
     if (!s_updater.start(base_, feed_)) {
-        status_.setText(fmt(tr(UPD_FAIL), s_updater.running() ? "busy" : s_updater.error()));
+        status_.setText(formatArg(tr(UPD_FAIL), s_updater.running() ? "busy" : s_updater.error()));
         return;
     }
     phase_ = Phase::Updating;

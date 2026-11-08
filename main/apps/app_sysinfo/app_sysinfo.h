@@ -9,6 +9,7 @@
 #include "widgets/button.h"
 #include "widgets/checkbox.h"
 #include "widgets/label.h"
+#include "widgets/text_view.h"
 
 namespace apps {
 
@@ -24,27 +25,13 @@ public:
     const AppMeta& meta() const override { return meta_; }
 
 private:
-    class Body : public ui::Widget {
-    public:
-        void setContent(const gfx::Font* f, std::vector<std::string> lines)
-        {
-            font_ = f;
-            lines_ = std::move(lines);
-            invalidate();
-        }
-        void draw(core::Framebuffer& fb) override;
-    private:
-        const gfx::Font* font_ = nullptr;
-        std::vector<std::string> lines_;
-    };
-
     void rebuild();
 
     AppMeta meta_{"sysinfo", "시스템 상태"};
     ui::Screen  screen_;
     ui::Button  back_;
     ui::Label   title_;
-    Body        body_;
+    ui::TextView body_;
     ui::Label    batt_cb_name_;
     ui::Checkbox batt_cb_;
     ui::Label    bri_cb_name_;

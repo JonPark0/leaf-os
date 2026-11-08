@@ -56,12 +56,12 @@ enum Lang { Ko = 0, En = 1 };
     X(SET_WIFI_FMT,       "Wi-Fi: %s",           "Wi-Fi: %s")                    \
     X(SET_WIFI_UNSET,     "미설정",              "not set")                      \
     X(SET_WIFI_OFF,       "꺼짐",                "off")                          \
-    X(LUA_LOADING,        "불러오는 중…",        "Loading…")                     \
+    X(LUA_LOADING,        "불러오는 중...",        "Loading...")                     \
     /* app catalog */                                                           \
     X(LUA_NEEDS_FIRMWARE, "이 앱은 Lua API %d가 필요합니다.\n펌웨어를 업데이트해 주세요. (현재 %d)", \
                           "This app needs Lua API %d.\nUpdate the firmware. (This one has %d.)") \
     X(STORE_REFRESH,      "새로고침",            "Refresh")                     \
-    X(STORE_LOADING,      "앱 목록을 불러오는 중…", "Loading the app list…")    \
+    X(STORE_LOADING,      "앱 목록을 불러오는 중...", "Loading the app list...")    \
     X(STORE_LOAD_FAIL,    "앱 목록을 불러오지 못했습니다: %s",                 \
                           "Couldn't load the app list: %s")                     \
     X(STORE_NO_WIFI,      "Wi-Fi에 연결해 주세요", "Connect to Wi-Fi")          \
@@ -91,11 +91,11 @@ enum Lang { Ko = 0, En = 1 };
     X(UPD_CHECK,          "확인",                "Check")                        \
     X(UPD_INSTALL,        "업데이트",            "Update")                       \
     X(UPD_CANCEL,         "취소",                "Cancel")                       \
-    X(UPD_CHECKING,       "확인하는 중…",        "Checking…")                    \
+    X(UPD_CHECKING,       "확인하는 중...",        "Checking...")                    \
     X(UPD_UP_TO_DATE,     "최신 버전입니다",     "Up to date")                   \
     X(UPD_AVAILABLE,      "새 버전이 있습니다",  "A new version is available")   \
     X(UPD_DOWNLOADING,    "받는 중 %d%%",        "Downloading %d%%")             \
-    X(UPD_RESTARTING,     "다시 시작합니다…",    "Restarting…")                  \
+    X(UPD_RESTARTING,     "다시 시작합니다...",    "Restarting...")                  \
     X(UPD_CHECK_FAIL,     "확인하지 못했습니다: %s", "Check failed: %s")         \
     X(UPD_FAIL,           "업데이트하지 못했습니다: %s", "Update failed: %s")    \
     X(UPD_CANCELLED,      "업데이트를 취소했습니다", "Update cancelled")         \
@@ -151,7 +151,7 @@ enum Lang { Ko = 0, En = 1 };
     X(TIME_MIN,           "분",                  "Min")                          \
     X(TIME_NTP,           "NTP 동기화",          "NTP sync")                     \
     X(TIME_WIFI_DOWN,     "Wi-Fi 연결 안 됨",    "Wi-Fi not connected")          \
-    X(TIME_NTP_WAIT,      "NTP 동기화 중…",      "NTP sync…")                    \
+    X(TIME_NTP_WAIT,      "NTP 동기화 중...",      "NTP sync...")                    \
     X(TIME_SYNC_OK_FMT,   "동기화 완료 — %04d-%02d-%02d %02d:%02d",              \
                           "Synced — %04d-%02d-%02d %02d:%02d")                  \
     X(TIME_SYNC_TIMEOUT,  "동기화 실패 (시간 초과)", "Sync failed (timeout)")      \
@@ -163,7 +163,7 @@ enum Lang { Ko = 0, En = 1 };
     X(WIFI_TITLE,         "Wi-Fi 설정",          "Wi-Fi")                        \
     X(WIFI_ENABLE,        "Wi-Fi 사용",          "Wi-Fi enabled")                \
     X(WIFI_DISABLED,      "Wi-Fi 꺼짐",          "Wi-Fi is off")                 \
-    X(WIFI_CONNECTING,    "연결 중…",            "Connecting…")                  \
+    X(WIFI_CONNECTING,    "연결 중...",            "Connecting...")                  \
     X(WIFI_CONNECTED,     "연결됨",              "Connected")                    \
     X(WIFI_FAILED,        "연결 실패",           "Failed")                       \
     X(WIFI_OFF,           "연결 안 됨",          "Not connected")                \
@@ -172,8 +172,8 @@ enum Lang { Ko = 0, En = 1 };
     X(WIFI_SAVED,         "저장됨",              "Saved")                        \
     X(WIFI_PASSWORD,      "비밀번호",            "Password")                     \
     X(WIFI_PW_PROMPT_FMT, "'%s' 비밀번호",       "'%s' password")               \
-    X(WIFI_SCANNING,      "검색 중…",            "Scanning…")                    \
-    X(WIFI_SCANNING_FULL, "Wi-Fi 검색 중…",      "Scanning Wi-Fi…")             \
+    X(WIFI_SCANNING,      "검색 중...",            "Scanning...")                    \
+    X(WIFI_SCANNING_FULL, "Wi-Fi 검색 중...",      "Scanning Wi-Fi...")             \
     X(WIFI_NO_NETWORKS,   "(검색된 네트워크 없음)", "(no networks found)")         \
     /* about page */                                                            \
     X(ABOUT_VERSION,      "버전",                "Version")                      \

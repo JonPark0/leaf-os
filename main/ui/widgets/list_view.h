@@ -54,7 +54,6 @@ public:
     bool onTouch(int x, int y, TouchPhase phase) override;
 
 private:
-    static constexpr int kPagerW = 44;
     int pageCount() const;
 
     const gfx::Font* font_;

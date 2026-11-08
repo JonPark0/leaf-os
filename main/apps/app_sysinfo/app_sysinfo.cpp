@@ -24,23 +24,6 @@ std::string humanBytes(uint64_t b)
 }
 }  // namespace
 
-void SysInfoApp::Body::draw(core::Framebuffer& fb)
-{
-    fb.fillRect(bounds_, core::kWhite);
-    if (!font_ || !font_->valid()) return;
-
-    const int lh = font_->lineHeight();
-    int y = bounds_.y + 8;
-    for (const std::string& s : lines_) {
-        if (s.empty()) { y += lh / 2; continue; }
-        if (y + lh > bounds_.y + bounds_.h) break;
-        const int w = font_->measure(s.c_str());
-        font_->draw(fb, bounds_.x + (bounds_.w - w) / 2, y + font_->ascent(),
-                    s.c_str(), core::kBlack);
-        y += lh;
-    }
-}
-
 void SysInfoApp::onCreate(const AppContext& ctx)
 {
     App::onCreate(ctx);
@@ -56,7 +39,9 @@ void SysInfoApp::onCreate(const AppContext& ctx)
     screen_.add(&title_);
 
     const int top = bodyTop();
-    body_.setBounds({0, top, 480, 360});
+    body_.setFont(ctx.ui_font);
+    body_.setAlign(ui::TextView::Align::Center);
+    body_.setBounds({0, top + 8, 480, 352});
     screen_.add(&body_);
 
     const int cy = top + 372;
@@ -130,7 +115,7 @@ void SysInfoApp::rebuild()
                   static_cast<int>(sec / 3600), static_cast<int>((sec % 3600) / 60));
     L.push_back(b);
 
-    body_.setContent(ctx_.ui_font, std::move(L));
+    body_.setLines(std::move(L));
 }
 
 }  // namespace apps

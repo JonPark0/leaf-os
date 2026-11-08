@@ -54,6 +54,10 @@ void Screen::handleTouch(int x, int y, TouchPhase phase)
 {
     if (phase == TouchPhase::Down) {
         captured_ = nullptr;
+        // The overlay's strip belongs to the system: a touch there never
+        // reaches the app's widgets, even when the overlay declines it. Full-
+        // screen views (Lua apps, the reader) rely on this, and the status
+        // bar pull-down gesture will claim the strip.
         if (overlay_ && overlay_->visible() && overlay_->bounds().contains(x, y)) {
             if (overlay_->onTouch(x, y, phase)) captured_ = overlay_;
             return;

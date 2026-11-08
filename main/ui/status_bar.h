@@ -39,7 +39,9 @@ public:
     void tick();
 
     void draw(core::Framebuffer& fb) override;
-    bool onTouch(int, int, TouchPhase) override { return false; }  // transparent
+    // Takes no touches itself, but Screen still keeps its strip from the app
+    // (see Screen::handleTouch).
+    bool onTouch(int, int, TouchPhase) override { return false; }
 
 private:
     void rebuildClock();

@@ -5,33 +5,10 @@
 #include <string>
 
 #include "iconset.h"
+#include "pager.h"
+#include "text_draw.h"
 
 namespace ui {
-namespace {
-
-// Draw `s` at (x, baseline), clipped to `avail` px with a trailing "..." when it
-// does not fit. Truncation lands on UTF-8 scalar boundaries.
-void drawClipped(core::Framebuffer& fb, const gfx::Font& f, int x, int baseline,
-                 const std::string& s, int avail)
-{
-    if (avail <= 0 || s.empty()) return;
-    if (f.measure(s.c_str()) <= avail) {
-        f.draw(fb, x, baseline, s.c_str(), core::kBlack);
-        return;
-    }
-    const char* ell = "...";           // embedded font's U+2026 glyph is blank
-    const int ew = f.measure(ell);
-    int n = static_cast<int>(s.size());
-    while (n > 0) {
-        --n;
-        while (n > 0 && (static_cast<unsigned char>(s[n]) & 0xC0) == 0x80) --n;
-        if (f.measure(s.c_str(), n) + ew <= avail) break;
-    }
-    f.draw(fb, x, baseline, s.c_str(), core::kBlack, n);
-    f.draw(fb, x + f.measure(s.c_str(), n), baseline, ell, core::kBlack);
-}
-
-}  // namespace
 
 void ListView::setItems(std::vector<std::string> items)
 {
@@ -84,7 +61,7 @@ void ListView::draw(core::Framebuffer& fb)
     const int rh = rowHeight();
     const int rpp = rowsPerPage();
     const int start = page_ * rpp;
-    const int list_w = bounds_.w - kPagerW;
+    const int list_w = bounds_.w - pager::kWidth;
 
     for (int r = 0; r < rpp && start + r < count(); ++r) {
         const int row = start + r;
@@ -122,7 +99,7 @@ void ListView::draw(core::Framebuffer& fb)
         }
 
         const int text_left = bounds_.x + 12;
-        drawClipped(fb, f, text_left, by, items_[row], text_right - text_left);
+        text::drawEllipsized(fb, f, text_left, by, items_[row], text_right - text_left);
 
         // chevron
         const int cx = bounds_.x + list_w - 18, cy = y + rh / 2;
@@ -132,34 +109,13 @@ void ListView::draw(core::Framebuffer& fb)
         }
     }
 
-    // pager column: prev (top half) / next (bottom half), split at midY.
-    const int px   = bounds_.right() - kPagerW;
-    const int cx   = px + kPagerW / 2;
-    const int midY = bounds_.y + bounds_.h / 2;
-    fb.fillRect({px, bounds_.y, 1, bounds_.h}, core::kBlack);  // divider from the list
-
-    // prev triangle (points up), centred in the top half
-    const int upY = bounds_.y + bounds_.h / 4 - 5;
-    for (int i = 0; i < 10; ++i)
-        fb.fillRect({cx - i, upY + i, 2 * i + 1, 1}, core::kBlack);
-
-    // next triangle (points down), centred in the bottom half
-    const int dnY = bounds_.y + bounds_.h * 3 / 4 - 5;
-    for (int i = 0; i < 10; ++i)
-        fb.fillRect({cx - (9 - i), dnY + i, 2 * (9 - i) + 1, 1}, core::kBlack);
-
-    // page indicator, vertically centred on the split line — no divider line
-    // here, so it never collides with the "n/m" text or the arrows.
-    char pg[16];
-    std::snprintf(pg, sizeof(pg), "%d/%d", page_ + 1, pageCount());
-    const int pw = font_->measure(pg);
-    font_->draw(fb, cx - pw / 2,
-                midY - font_->lineHeight() / 2 + font_->ascent(), pg, core::kBlack);
+    pager::draw(fb, pager::column(bounds_), *font_, page_, pageCount());
 }
 
 bool ListView::onTouch(int x, int y, TouchPhase phase)
 {
-    const int px = bounds_.right() - kPagerW;
+    const core::Rect col = pager::column(bounds_);
+    const int px = col.x;
     const int rh = rowHeight();
     const int rpp = rowsPerPage();
 
@@ -174,7 +130,7 @@ bool ListView::onTouch(int x, int y, TouchPhase phase)
 
     // Up
     if (x >= px) {
-        setPage(y < bounds_.y + bounds_.h / 2 ? page_ - 1 : page_ + 1);
+        setPage(page_ + pager::step(col, y));
         return true;
     }
     const int r = (y - bounds_.y) / rh;

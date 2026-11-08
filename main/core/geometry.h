@@ -39,6 +39,12 @@ struct Rect {
         return {nx, ny, nr - nx, nb - ny};
     }
 
+    constexpr bool operator==(const Rect& o) const
+    {
+        return x == o.x && y == o.y && w == o.w && h == o.h;
+    }
+    constexpr bool operator!=(const Rect& o) const { return !(*this == o); }
+
     Rect clampedTo(int cw, int ch) const
     {
         return intersect({0, 0, cw, ch});

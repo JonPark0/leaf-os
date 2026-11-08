@@ -37,19 +37,19 @@ bool readManifest(const std::string& dir, appstore::AppManifest& out)
     return true;
 }
 
-int scanSdApps(SdAppInfo* out, int max)
+std::vector<SdAppInfo> scanSdApps(int max)
 {
-    if (hal::storage::state() != hal::storage::State::Mounted) return 0;
+    std::vector<SdAppInfo> out;
+    if (hal::storage::state() != hal::storage::State::Mounted) return out;
 
     appstore::recoverApps();   // finish or roll back an interrupted install
 
     const std::string root = sdAppsRoot();
     DIR* d = ::opendir(root.c_str());
-    if (!d) return 0;
+    if (!d) return out;
 
-    int n = 0;
     struct dirent* ent;
-    while (n < max && (ent = ::readdir(d)) != nullptr) {
+    while (static_cast<int>(out.size()) < max && (ent = ::readdir(d)) != nullptr) {
         if (ent->d_name[0] == '.') continue;
         if (!appstore::validId(ent->d_name)) {
             ESP_LOGW(TAG, "skipping /apps/%s: not a valid app id", ent->d_name);
@@ -62,15 +62,15 @@ int scanSdApps(SdAppInfo* out, int max)
         SdAppInfo info;
         info.dir = dir;
         if (!readManifest(dir, info.m)) { ESP_LOGD(TAG, "no app.txt in %s", dir.c_str()); continue; }
-        out[n++] = std::move(info);
+        out.push_back(std::move(info));
     }
     ::closedir(d);
 
-    std::stable_sort(out, out + n, [](const SdAppInfo& a, const SdAppInfo& b) {
+    std::stable_sort(out.begin(), out.end(), [](const SdAppInfo& a, const SdAppInfo& b) {
         return a.m.order != b.m.order ? a.m.order < b.m.order : a.m.id < b.m.id;
     });
-    ESP_LOGI(TAG, "%d SD app(s)", n);
-    return n;
+    ESP_LOGI(TAG, "%u SD app(s)", static_cast<unsigned>(out.size()));
+    return out;
 }
 
 }  // namespace apps

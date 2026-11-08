@@ -36,8 +36,8 @@ void HomeApp::rebuild()
     for (int i = 0; i < n; ++i)
         if (builtins[i].visible == nullptr || builtins[i].visible()) shown.push_back(&builtins[i]);
 
-    SdAppInfo sd[kMaxSdApps];
-    const int sdn = scanSdApps(sd, kMaxSdApps);
+    const std::vector<SdAppInfo> sd = scanSdApps(kMaxSdApps);
+    const int sdn = static_cast<int>(sd.size());
 
     tiles_.clear();
     tiles_.resize(shown.size() + static_cast<size_t>(sdn));   // one realloc

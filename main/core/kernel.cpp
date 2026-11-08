@@ -82,7 +82,9 @@ void Kernel::setRootApp(apps::App* root)
 void Kernel::pushApp(apps::App* child)
 {
     if (child == nullptr) return;
-    if (pending_push_) { pending_push_->onDestroy(); delete pending_push_; }
+    // One push per tick: a second one (a double tap on a tile) is dropped. It
+    // was never created, so it gets no lifecycle calls, just the delete.
+    if (pending_push_) { delete child; return; }
     pending_push_ = child;
 }
 
