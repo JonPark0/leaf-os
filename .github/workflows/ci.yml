@@ -118,3 +118,13 @@ jobs:
           args=()
           [[ -n "$BASE_REF" ]] && args+=(--base "origin/$BASE_REF")
           python3 tools/apps/build_catalog.py --out site "${args[@]}"
+
+      - name: Build the firmware feed from the latest release (dry run)
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag=$(gh release list --exclude-pre-releases --exclude-drafts --limit 1                   --json tagName --jq '.[0].tagName // empty')
+          [[ -z "$tag" ]] && { echo "no release yet"; exit 0; }
+          gh release download "$tag" --pattern '*-update.zip' --dir dl
+          python3 tools/release/build_feed.py --tag "$tag" --zip "dl/leaf-os-${tag}-update.zip" --out site

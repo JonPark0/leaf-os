@@ -27,6 +27,14 @@ idf.py -p <PORT> flash monitor
 Download mode: hold the power button ~2 s until the red LED flashes, release.
 After the first flash, USB-CDC reset usually re-flashes without the button.
 
+To replace only the app and keep settings, write the boot-slot data with it.
+After an over-the-air update the device boots the second slot, so writing the
+app alone at `0x10000` would not change what runs:
+
+```bash
+esptool.py --chip esp32s3 write_flash 0xe000 build/ota_data_initial.bin 0x10000 build/leaf_os.bin
+```
+
 ## Releases
 
 Pushing a `v*` tag builds the firmware in CI and publishes a GitHub release
@@ -42,6 +50,13 @@ the nearest tag plus the commit, or the commit hash before the first tag.
 | `leaf-os-<tag>-sd.zip` | SD card root: Lua apps and sample language packs |
 | `leaf-os-<tag>-elf.zip` | Debug symbols |
 | `SHA256SUMS` | Checksums |
+
+From v0.3.0 on, the device updates itself: 설정 → 펌웨어 업데이트 checks the
+feed at `https://jonpark0.github.io/leaf-os/firmware/v1/latest.json`, which
+`.github/workflows/pages.yml` rebuilds from the latest release. A new image
+that fails to start rolls back to the previous one. Devices on v0.2.0 or
+older need the v0.3.0 `-update.zip` once, since it carries the new bootloader.
+See `docs/design/ota-update.md`.
 
 ## Status — Phase 1 (display foundation)
 
