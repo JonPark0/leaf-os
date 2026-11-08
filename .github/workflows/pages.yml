@@ -12,7 +12,7 @@ on:
       - "tools/release/build_feed.py"
       - ".github/workflows/pages.yml"
   release:
-    types: [published]
+    types: [published]   # releases made by hand; release.yml starts this itself
   workflow_dispatch:
 
 permissions:

@@ -50,6 +50,7 @@ jobs:
     runs-on: ubuntu-24.04
     permissions:
       contents: write
+      actions: write   # start pages.yml (see the last step)
     steps:
       - uses: actions/checkout@v4
 
@@ -89,3 +90,12 @@ jobs:
           sed -i 's/^          //' notes.md
           gh release create "$tag" dist/* --verify-tag --title "LEAF OS $tag" \
             --notes-file notes.md --generate-notes "${flags[@]}"
+
+      # A release made with GITHUB_TOKEN does not trigger other workflows, so
+      # pages.yml's release trigger never fires for it. Start it directly so
+      # the firmware feed moves to this release.
+      - name: Update the firmware feed
+        if: ${{ !contains(github.ref_name, '-') }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run pages.yml --ref main
