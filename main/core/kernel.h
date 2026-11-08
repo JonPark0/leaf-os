@@ -48,7 +48,7 @@ public:
     // Navigation requests are queued and applied at the top of the next tick,
     // so it is safe to call these from inside a widget callback (the callback's
     // owning app/widget may be the one being destroyed).
-    void pushApp(apps::App* child);   // launch on top
+    void pushApp(apps::App* child);   // launch on top; a second push in the same tick is dropped
     void popApp();                    // close the top app (no-op on root)
     int  appDepth() const { return static_cast<int>(stack_.size()); }
 

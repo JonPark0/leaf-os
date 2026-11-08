@@ -54,8 +54,11 @@ void Screen::handleTouch(int x, int y, TouchPhase phase)
 {
     if (phase == TouchPhase::Down) {
         captured_ = nullptr;
-        if (overlay_ && overlay_->visible() && overlay_->bounds().contains(x, y)) {
-            if (overlay_->onTouch(x, y, phase)) captured_ = overlay_;
+        // The overlay gets first refusal; one that declines (the status bar
+        // does) lets the touch through to the widgets underneath.
+        if (overlay_ && overlay_->visible() && overlay_->bounds().contains(x, y) &&
+            overlay_->onTouch(x, y, phase)) {
+            captured_ = overlay_;
             return;
         }
         // Top-most first. A widget that declines the touch (onTouch -> false)

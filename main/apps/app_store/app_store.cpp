@@ -116,8 +116,8 @@ void StoreApp::load()
 
 void StoreApp::rebuildRows()
 {
-    SdAppInfo sd[kMaxSdApps];
-    const int sdn = scanSdApps(sd, kMaxSdApps);
+    const std::vector<SdAppInfo> sd = scanSdApps(kMaxSdApps);
+    const int sdn = static_cast<int>(sd.size());
     std::vector<bool> matched(static_cast<size_t>(sdn), false);
 
     rows_.clear();

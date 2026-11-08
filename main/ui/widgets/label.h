@@ -7,6 +7,8 @@
 
 namespace ui {
 
+// One line of text in its rect, vertically centred. Text wider than the rect
+// is cut with "..." instead of drawing outside it.
 class Label : public Widget {
 public:
     enum class Align { Left, Center, Right };

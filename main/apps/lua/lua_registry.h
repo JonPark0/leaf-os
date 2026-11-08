@@ -9,6 +9,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 #include "manifest.h"
 
@@ -25,8 +26,9 @@ std::string sdAppsRoot();
 // Read <dir>/app.txt. False when it is missing or unreadable.
 bool readManifest(const std::string& dir, appstore::AppManifest& out);
 
-// Scan /sd/apps/*/app.txt. Fills `out` with up to `max` entries, sorted by
-// `order` then `id`. Returns the count. 0 when the card is not mounted.
-int scanSdApps(SdAppInfo* out, int max);
+// Scan /sd/apps/*/app.txt: up to `max` apps, sorted by `order` then `id`.
+// Empty when the card is not mounted. On the heap, since each entry is a few
+// hundred bytes and callers run on the main task's stack.
+std::vector<SdAppInfo> scanSdApps(int max);
 
 }  // namespace apps
