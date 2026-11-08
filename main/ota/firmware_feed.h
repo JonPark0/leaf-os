@@ -12,14 +12,15 @@ namespace ota {
 // `git describe` output: "v1.2.3", or "v1.2.3-4-gabcdef0[-dirty]" on a dev build.
 struct FirmwareVersion {
     int  major = 0, minor = 0, patch = 0;
-    bool dev = false;   // anything after the numbers
+    bool dev = false;   // anything after the numbers: commits past the tag
 };
 
 bool parseFirmwareVersion(const std::string& s, FirmwareVersion& out);
 
 // Whether `latest` (a release tag) should be offered to a device running
-// `running`. Newer numbers always; equal numbers only on a dev build; an
-// unreadable running version always; an unreadable `latest` never.
+// `running`: only when its numbers are higher. A dev build ("v0.2.0-4-g…") is
+// already past its tag, so the same tag is not offered. An unreadable running
+// version always gets the offer; an unreadable or prerelease `latest` never.
 bool updateAvailable(const std::string& running, const std::string& latest);
 
 struct Feed {

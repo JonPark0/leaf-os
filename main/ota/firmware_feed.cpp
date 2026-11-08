@@ -39,9 +39,7 @@ bool updateAvailable(const std::string& running, const std::string& latest)
     FirmwareVersion l, r;
     if (!parseFirmwareVersion(latest, l) || l.dev) return false;
     if (!parseFirmwareVersion(running, r)) return true;
-    const auto lt = std::tie(l.major, l.minor, l.patch);
-    const auto rt = std::tie(r.major, r.minor, r.patch);
-    return lt > rt || (lt == rt && r.dev);
+    return std::tie(l.major, l.minor, l.patch) > std::tie(r.major, r.minor, r.patch);
 }
 
 bool validateFeed(const Feed& f, size_t slot_bytes, std::string& why)

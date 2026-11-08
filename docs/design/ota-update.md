@@ -55,10 +55,10 @@ The running version is `esp_app_get_description()->version`, which is
 on a dev build.
 
 `parseFirmwareVersion` takes `vMAJOR.MINOR.PATCH` and an optional `-…`
-suffix; a suffix marks a dev build. An update is offered when the feed's
-version is higher than the running one's numbers, or equal to them on a dev
-build (so a dev build of 0.2.0 can move to the released 0.2.0). An unreadable
-running version always offers the update.
+suffix; a suffix marks a dev build. An update is offered only when the feed's
+numbers are higher than the running ones. A dev build `v0.2.0-4-g…` is four
+commits past v0.2.0, so v0.2.0 itself is not offered to it. An unreadable
+running version always gets the offer.
 
 ## 4. Device side
 

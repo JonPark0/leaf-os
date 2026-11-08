@@ -62,8 +62,9 @@ TEST(update_offered_only_when_newer)
 
 TEST(update_dev_builds_and_unreadable_versions)
 {
-    EXPECT_TRUE(updateAvailable("v0.3.0-2-gabc1234", "v0.3.0"));
-    EXPECT_TRUE(updateAvailable("v0.3.0-dirty", "v0.3.0"));
+    EXPECT_TRUE(updateAvailable("v0.2.0-2-gabc1234", "v0.3.0"));
+    EXPECT_TRUE(!updateAvailable("v0.3.0-2-gabc1234", "v0.3.0"));
+    EXPECT_TRUE(!updateAvailable("v0.3.0-dirty", "v0.3.0"));
     EXPECT_TRUE(!updateAvailable("v0.3.1-2-gabc1234", "v0.3.0"));
     EXPECT_TRUE(updateAvailable("919d3a5-dirty", "v0.3.0"));
     EXPECT_TRUE(!updateAvailable("v0.2.0", "v0.3.0-rc1"));
