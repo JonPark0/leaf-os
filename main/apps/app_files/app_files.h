@@ -13,7 +13,8 @@
 namespace apps {
 
 // SD-card file browser. Folders first, then files; tap a folder to descend,
-// ".." to go up (never above the mount point). Files are inert for now — the
+// ".." to go up (never above the mount point); back leaves the app from any
+// folder. Files are inert for now — the
 // reader will hook in here later. Registered only while a card is mounted
 // (app_registry `sdInserted`); if the card is pulled while browsing, the app
 // pops itself.
@@ -23,8 +24,6 @@ public:
     void onCreate(const AppContext& ctx) override;
     void onResume() override;
     void onSystemChanged() override;   // SD insert / removal
-
-    bool onBack() override;             // ".." if not at root, else let kernel pop
 
 private:
     struct Entry {

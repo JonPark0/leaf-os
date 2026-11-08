@@ -47,12 +47,6 @@ void FilesApp::onCreate(const AppContext& ctx)
     setupPage(ctx, "", TitleStyle::BesideBack);   // the title shows the folder path
     title_.setElideHead(true);                     // keep the current folder in view
 
-    // Back goes up a folder first, and only leaves the app at the root.
-    back_.onClick([this] {
-        if (cur_ != hal::storage::mountPoint()) goUp();
-        else if (ctx_.pop) ctx_.pop();
-    });
-
     list_.setFont(ctx.ui_font);
     list_.setBounds(ui::metrics::body());
     list_.onSelect([this](int i) { openEntry(i); });
@@ -91,12 +85,6 @@ void FilesApp::onSystemChanged()
         ESP_LOGI(TAG, "card gone — leaving file manager");
         if (ctx_.pop) ctx_.pop();
     }
-}
-
-bool FilesApp::onBack()
-{
-    if (cur_ != hal::storage::mountPoint()) { goUp(); return true; }
-    return false;   // at root — let the kernel pop us
 }
 
 void FilesApp::goUp()
