@@ -7,7 +7,7 @@ captures decisions and hardware findings as implementation proceeds.
 
 ```
 apps/   home · settings · reader · files          (App interface = future Lua boundary)
-ui/     widget tree, screens, status bar
+ui/     widget tree, screens, status bar (docs/UI.md)
 gfx/    font_renderer · font_cache · text_layout
 book/   txt/epub parsers · paginator   (host-testable, no hardware deps)
 core/   display_manager · framebuffer · event_bus · kernel · settings
