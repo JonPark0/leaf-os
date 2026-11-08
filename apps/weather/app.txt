@@ -1,5 +1,11 @@
-name    = 날씨
-name_en = Weather
-icon    = cloud
-entry   = main.lua
-order   = 20
+name       = 날씨
+name_en    = Weather
+summary    = 현재 날씨와 오늘의 최고·최저 기온 (Open-Meteo)
+summary_en = Current weather with today's high and low (Open-Meteo)
+author     = JonPark0
+version    = 1.0.0
+api        = 1
+net        = api.open-meteo.com, geocoding-api.open-meteo.com
+icon       = cloud
+entry      = main.lua
+order      = 20

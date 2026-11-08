@@ -35,3 +35,24 @@ else()
 endif()
 
 add_test(NAME book COMMAND test_book)
+
+# appstore/: app.txt parsing, catalog rules, URL host checks.
+set(APPSTORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../main/appstore)
+set(CORE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../main/core)
+
+add_executable(test_appstore
+    test_main.cpp
+    test_appstore.cpp
+    ${APPSTORE_DIR}/manifest.cpp
+    ${APPSTORE_DIR}/catalog.cpp
+    ${APPSTORE_DIR}/url.cpp
+    ${CORE_DIR}/kv.cpp)
+target_include_directories(test_appstore PRIVATE ${APPSTORE_DIR} ${CORE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(test_appstore PRIVATE /W4 /utf-8)
+else()
+    target_compile_options(test_appstore PRIVATE -Wall -Wextra)
+endif()
+
+add_test(NAME appstore COMMAND test_appstore)

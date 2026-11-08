@@ -36,6 +36,8 @@ idf_component_register(
         "apps/app_power"
         "apps/app_sysinfo"
         "apps/lua"
+        "apps/app_store"
+        "appstore"
     INCLUDE_DIRS
         "."
         "hal"
@@ -44,6 +46,7 @@ idf_component_register(
         "book"
         "ui"
         "apps"
+        "appstore"
     REQUIRES
         ssd1677_otp
         driver
@@ -60,6 +63,7 @@ idf_component_register(
         nvs_flash
         esp_http_client
         esp-tls
+        mbedtls
         json
         lua
     EMBED_FILES

@@ -32,3 +32,6 @@ __pycache__/
 .idea/
 *.swp
 .DS_Store
+
+# App catalog build output (tools/apps/build_catalog.py)
+/site/

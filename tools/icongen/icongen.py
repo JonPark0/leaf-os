@@ -169,6 +169,7 @@ DEFAULT_PICKS = {
     "power":       "power-off-svgrepo-com",
     "dots":        "dots-horizontal-svgrepo-com",
     "cloud":       "cloud-plain",
+    "download":    "cloud-arrow-down-svgrepo-com",
 }
 
 

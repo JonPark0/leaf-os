@@ -9,6 +9,10 @@ struct lua_State;
 
 namespace apps {
 
+// Level of the Lua surface in docs/APP_KIT.md. Raised when a binding is added;
+// an app.txt `api` above it is not run.
+constexpr int kLuaApiLevel = 1;
+
 // Open safe stdlibs (base/table/string/math/utf8/coroutine, minus
 // dofile/loadfile/load) + the host libs, and install the timeout hook.
 void luaapp_open(lua_State* L);

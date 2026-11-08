@@ -3,6 +3,7 @@
 #include "app_books/app_books.h"
 #include "app_files/app_files.h"
 #include "app_settings/app_settings.h"
+#include "app_store/app_store.h"
 #include "hal_storage.h"
 #include "i18n.h"
 
@@ -13,6 +14,7 @@ using namespace core::i18n;
 App* makeSettings() { return new SettingsApp(); }
 App* makeReader()   { return new BooksApp(); }
 App* makeFiles()    { return new FilesApp(); }
+App* makeStore()    { return new StoreApp(); }
 
 // Clock / Draw / Memo used to be built-in placeholder tiles; they are being
 // reimplemented as SD Lua apps (/sd/apps/<id>/), so they no longer ship in the
@@ -28,6 +30,7 @@ bool sdMounted()    { return hal::storage::state() == hal::storage::State::Mount
 const BuiltinApp kApps[] = {
     {"reader",   APP_BOOKS,    "book",   makeReader,   nullptr},
     {"files",    APP_FILES,    "folder", makeFiles,    sdMounted},  // only when mounted
+    {"store",    APP_STORE,    "download", makeStore, nullptr},
     {"settings", APP_SETTINGS, "gear",   makeSettings, nullptr},
 };
 
