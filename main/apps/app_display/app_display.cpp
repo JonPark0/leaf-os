@@ -91,18 +91,8 @@ void DisplayApp::rescan()
 
 void DisplayApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
     rescan();
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(SET_DISPLAY));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(SET_DISPLAY));
 
     static const Msg kRowMsg[kRowCount] = {
         DISP_BRIGHTNESS, DISP_UI_FAMILY, DISP_UI_SIZE, DISP_READ_FAMILY, DISP_READ_SIZE};

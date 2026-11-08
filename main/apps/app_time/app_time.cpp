@@ -51,17 +51,7 @@ int weekdayOf(const hal::rtc::DateTime& d)
 
 void TimeApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(SET_TIME));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(SET_TIME));
 
     const int top = bodyTop();
     const int rowH = 64, gap = 10;

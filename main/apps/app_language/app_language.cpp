@@ -38,20 +38,10 @@ bool renderable(const gfx::Font* f, const std::string& s)
 
 void LanguageApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(LANG_TITLE));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(LANG_TITLE));
 
     list_.setFont(ctx.ui_font);
-    list_.setBounds({0, bodyTop(), 480, 800 - bodyTop() - 40});
+    list_.setBounds({0, bodyTop(), ui::metrics::kScreenW, ui::metrics::kScreenH - bodyTop() - 40});
     list_.onSelect([this](int i) { choose(i); });
     list_.fontFor([this](int row) -> const gfx::Font* {
         const int idx = row - 2;
@@ -62,7 +52,7 @@ void LanguageApp::onCreate(const AppContext& ctx)
 
     note_.setFont(ctx.ui_font);
     note_.setText(tr(LANG_NOTE));
-    note_.setBounds({16, 800 - 36, 448, 30});
+    note_.setBounds({16, ui::metrics::kScreenH - 36, 448, 30});
     note_.setAlign(ui::Label::Align::Left);
     screen_.add(&note_);
 

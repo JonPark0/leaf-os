@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "hal_wifi.h"
 #include "widgets/button.h"
@@ -20,15 +20,13 @@ namespace apps {
 // /sd/.wifi/known.txt (dot-prefixed, so the file manager hides it) when a card
 // is mounted. Known networks are shown in the list; tapping one pre-fills its
 // saved password, and the password screen offers a "삭제" (forget) button.
-class WifiApp : public App {
+class WifiApp : public PageApp {
 public:
+    WifiApp() : PageApp("wifi") {}
     void onCreate(const AppContext& ctx) override;
     void onResume() override;
     void onPause() override;
     void onTick() override;
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     struct KnownNet { std::string ssid; std::string pass; };
@@ -56,11 +54,7 @@ private:
     void forgetKnown(const std::string& ssid);
     const std::string* knownPass(const std::string& ssid) const;
 
-    AppMeta meta_{"wifi", "Wi-Fi 설정"};
-    ui::Screen    screen_;
-    ui::Button    back_;
     ui::Button    rescan_;
-    ui::Label     title_;
     ui::Label     wifi_label_;
     ui::Checkbox  wifi_on_;
     ui::Label     status_;

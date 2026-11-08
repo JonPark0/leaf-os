@@ -24,9 +24,9 @@ constexpr int64_t kCallbackBudgetUs = 9'000'000;   // per-callback watchdog
 LuaApp* LuaApp::s_active_ = nullptr;
 
 LuaApp::LuaApp(std::string dir, appstore::AppManifest manifest)
-    : manifest_(std::move(manifest)), meta_{"", ""}, dir_(std::move(dir))
+    : manifest_(std::move(manifest)), meta_{""}, dir_(std::move(dir))
 {
-    meta_ = AppMeta{manifest_.id.c_str(), manifest_.name.c_str()};
+    meta_ = AppMeta{manifest_.id.c_str()};
 }
 
 LuaApp::~LuaApp()

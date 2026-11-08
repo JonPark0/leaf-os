@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "font_scan.h"
 #include "widgets/button.h"
@@ -18,12 +18,10 @@ namespace apps {
 // Brightness is applied live; font choices are saved to core::Settings — the
 // reader font picks up on next open, the system font on next boot (a restart
 // row then appears in the Settings list).
-class DisplayApp : public App {
+class DisplayApp : public PageApp {
 public:
+    DisplayApp() : PageApp("display") {}
     void onCreate(const AppContext& ctx) override;
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     enum Row { kBright, kUiFamily, kUiSize, kReadFamily, kReadSize, kRowCount };
@@ -32,11 +30,6 @@ private:
     void refresh();
     void applyDefaults();
     void rescan();   // reload sd_fonts_ + per-script family list
-
-    AppMeta meta_{"display", "화면 / 글꼴"};
-    ui::Screen screen_;
-    ui::Button back_;
-    ui::Label  title_;
 
     std::array<ui::Label, kRowCount>  name_;
     std::array<ui::Label, kRowCount>  value_;

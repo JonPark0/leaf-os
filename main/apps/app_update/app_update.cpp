@@ -26,23 +26,13 @@ ota::Updater s_updater;
 
 void UpdateApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(SET_UPDATE));
-    title_.setBounds({120, ui::StatusBar::kHeight + 10, 240, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(SET_UPDATE), TitleStyle::CenteredWide);
 
     const int lh = ctx.ui_font ? ctx.ui_font->lineHeight() : 30;
-    const int btn_y = 800 - 64 - 3 * lh - 40;
+    const int btn_y = ui::metrics::kScreenH - 64 - 3 * lh - 40;
     body_.setFont(ctx.ui_font);
     body_.setGapPercent(100);
-    body_.setBounds({0, bodyTop(), 480, btn_y - bodyTop() - 12});
+    body_.setBounds({0, bodyTop(), ui::metrics::kScreenW, btn_y - bodyTop() - 12});
     screen_.add(&body_);
 
     button_.setFont(ctx.ui_font);

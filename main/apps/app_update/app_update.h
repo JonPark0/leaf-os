@@ -11,7 +11,7 @@
 #include <cstdint>
 #include <string>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "ota_client.h"
 #include "widgets/button.h"
@@ -20,14 +20,12 @@
 
 namespace apps {
 
-class UpdateApp : public App {
+class UpdateApp : public PageApp {
 public:
+    UpdateApp() : PageApp("update") {}
     void onCreate(const AppContext& ctx) override;
     void onTick() override;
     void onDestroy() override;
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     enum class Phase { Idle, Checking, Checked, Updating, Restarting };
@@ -37,10 +35,6 @@ private:
     void check();
     void startUpdate();
 
-    AppMeta meta_{"update", "펌웨어 업데이트"};
-    ui::Screen    screen_;
-    ui::Button    back_;
-    ui::Label     title_;
     ui::TextView  body_;
     ui::Button    button_;
     ui::Label     status_;

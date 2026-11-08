@@ -22,20 +22,10 @@ constexpr uint64_t kMaxReadable = 12ull * 1024 * 1024;
 
 void BooksApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(APP_BOOKS));
-    title_.setBounds({120, ui::StatusBar::kHeight + 12, 352, 40});
-    title_.setAlign(ui::Label::Align::Left);
-    screen_.add(&title_);
+    setupPage(ctx, tr(APP_BOOKS), TitleStyle::BesideBack);
 
     list_.setFont(ctx.ui_font);
-    list_.setBounds({0, bodyTop(), 480, 800 - bodyTop()});
+    list_.setBounds(ui::metrics::body());
     list_.onSelect([this](int i) { openBook(i); });
     list_.iconFor([this](int i) -> const char* {
         return (i >= 0 && i < static_cast<int>(books_.size())) ? "book" : nullptr;
@@ -51,7 +41,7 @@ void BooksApp::onCreate(const AppContext& ctx)
 
     // Added after list_ so its white row-fill never paints over the message.
     empty_.setFont(ctx.ui_font);
-    empty_.setBounds({0, bodyTop() + 60, 480, 40});
+    empty_.setBounds({0, bodyTop() + 60, ui::metrics::kScreenW, 40});
     empty_.setAlign(ui::Label::Align::Center);
     empty_.setVisible(false);
     screen_.add(&empty_);

@@ -40,17 +40,7 @@ std::string summary(const appstore::AppManifest& m)
 
 void StoreApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(APP_STORE));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(APP_STORE));
 
     const int lh = ctx.ui_font ? ctx.ui_font->lineHeight() : 30;
     status_.setFont(ctx.ui_font);
@@ -58,7 +48,7 @@ void StoreApp::onCreate(const AppContext& ctx)
     screen_.add(&status_);
 
     list_.setFont(ctx.ui_font);
-    list_.setBounds({0, bodyTop() + lh + 16, 480, 800 - bodyTop() - lh - 16});
+    list_.setBounds({0, bodyTop() + lh + 16, ui::metrics::kScreenW, ui::metrics::kScreenH - bodyTop() - lh - 16});
     list_.onSelect([this](int i) { onRow(i); });
     list_.detailFor([this](int i) -> std::string {
         if (i < 0 || i >= static_cast<int>(rows_.size())) return "";
@@ -156,7 +146,7 @@ void StoreApp::onRow(int i)
 
 StoreDetailApp::StoreDetailApp(std::string base, const appstore::CatalogEntry* entry,
                                const appstore::AppManifest* installed)
-    : base_(std::move(base))
+    : PageApp("store_detail"), base_(std::move(base))
 {
     if (entry) { has_entry_ = true; entry_ = *entry; }
     if (installed) { installed_ = true; local_ = *installed; }
@@ -164,24 +154,14 @@ StoreDetailApp::StoreDetailApp(std::string base, const appstore::CatalogEntry* e
 
 void StoreDetailApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
     const appstore::AppManifest& m = has_entry_ ? entry_.m : local_;
-    title_.setFont(ctx.ui_font);
-    title_.setText(displayName(m));
-    title_.setBounds({120, ui::StatusBar::kHeight + 10, 240, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, displayName(m), TitleStyle::CenteredWide);
 
     const int lh = ctx.ui_font ? ctx.ui_font->lineHeight() : 30;
-    const int btn_y = 800 - 64 - 3 * lh - 40;
+    const int btn_y = ui::metrics::kScreenH - 64 - 3 * lh - 40;
     body_.setFont(ctx.ui_font);
     body_.setGapPercent(100);
-    body_.setBounds({0, bodyTop(), 480, btn_y - bodyTop() - 12});
+    body_.setBounds({0, bodyTop(), ui::metrics::kScreenW, btn_y - bodyTop() - 12});
     screen_.add(&body_);
 
     install_.setFont(ctx.ui_font);

@@ -2,7 +2,7 @@
 
 #include <cstdint>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "widgets/button.h"
 #include "widgets/label.h"
@@ -13,13 +13,11 @@ namespace apps {
 // the first arms the button (label switches to "한 번 더 눌러 확인"); a second
 // tap within 5 s runs it. Any other tap, or the timeout, disarms it. E-ink tap
 // feedback is slow, so a single tap must never power the device down.
-class PowerApp : public App {
+class PowerApp : public PageApp {
 public:
+    PowerApp() : PageApp("power") {}
     void onCreate(const AppContext& ctx) override;
     void onTick() override;
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     enum Action { kNone, kRestart, kShutdown };
@@ -27,10 +25,6 @@ private:
     void tap(Action a);
     void disarm();
 
-    AppMeta meta_{"power", "전원"};
-    ui::Screen screen_;
-    ui::Button back_;
-    ui::Label  title_;
     ui::Button restart_;
     ui::Button shutdown_;
     ui::Label  hint_;
