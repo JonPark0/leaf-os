@@ -96,6 +96,12 @@ the loop has run 10 s. A reset or crash before that makes the bootloader go
 back to the previous slot. On boot, if the last update was rolled back, the
 update screen says so.
 
+Rollback happens on the next reset. A crash, panic or watchdog resets the
+chip by itself; an image that runs but never confirms (one built before this
+change, for instance) keeps running until something resets it. On USB power,
+holding the power button does not cut the rail (see `hal_power.h`), so that is
+not a reset; unplugging with a low battery, or a reset over USB, is.
+
 This changes the bootloader, which OTA cannot replace. Devices on v0.2.0 or
 older install v0.3.0 once with `-update.zip` (keeps settings); OTA works from
 then on.
