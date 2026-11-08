@@ -19,7 +19,7 @@ public:
     const AppMeta& meta() const override { return meta_; }
 
 private:
-    enum RowKind { kRestart, kDisplay, kWifi, kTime, kLanguage, kSysInfo, kPower, kAbout };
+    enum RowKind { kRestart, kDisplay, kWifi, kTime, kLanguage, kSysInfo, kPower, kUpdate, kAbout };
 
     void rebuildRows();
     void onRow(int idx);

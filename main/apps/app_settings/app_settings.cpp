@@ -10,6 +10,7 @@
 #include "app_power/app_power.h"
 #include "app_sysinfo/app_sysinfo.h"
 #include "app_time/app_time.h"
+#include "app_update/app_update.h"
 #include "app_wifi/app_wifi.h"
 #include "i18n.h"
 #include "settings.h"
@@ -62,6 +63,7 @@ void SettingsApp::rebuildRows()
     items.emplace_back(tr(SET_LANGUAGE));  row_kind_.push_back(kLanguage);
     items.emplace_back(tr(SET_SYSINFO));   row_kind_.push_back(kSysInfo);
     items.emplace_back(tr(SET_POWER));     row_kind_.push_back(kPower);
+    items.emplace_back(tr(SET_UPDATE));    row_kind_.push_back(kUpdate);
     items.emplace_back(tr(SET_ABOUT));     row_kind_.push_back(kAbout);
     list_.setItems(items);
 }
@@ -77,6 +79,7 @@ void SettingsApp::onRow(int idx)
         case kLanguage: ctx_.push(new LanguageApp()); return;
         case kSysInfo:  ctx_.push(new SysInfoApp());  return;
         case kPower:    ctx_.push(new PowerApp());    return;
+        case kUpdate:   ctx_.push(new UpdateApp());   return;
         case kAbout:    ctx_.push(new AboutApp());    return;
     }
 }

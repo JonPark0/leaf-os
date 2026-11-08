@@ -56,3 +56,20 @@ else()
 endif()
 
 add_test(NAME appstore COMMAND test_appstore)
+
+# ota/: firmware version comparison and feed rules.
+set(OTA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../main/ota)
+
+add_executable(test_ota
+    test_main.cpp
+    test_ota.cpp
+    ${OTA_DIR}/firmware_feed.cpp)
+target_include_directories(test_ota PRIVATE ${OTA_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+
+if(MSVC)
+    target_compile_options(test_ota PRIVATE /W4 /utf-8)
+else()
+    target_compile_options(test_ota PRIVATE -Wall -Wextra)
+endif()
+
+add_test(NAME ota COMMAND test_ota)
