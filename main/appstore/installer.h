@@ -37,7 +37,8 @@ public:
     void cancel();
 
 private:
-    State fail(const std::string& why);
+    // `why` is shown on screen; `file`, when set, only goes to the log.
+    State fail(const std::string& why, const std::string& file = "");
     State finish();
 
     State        state_ = State::Idle;

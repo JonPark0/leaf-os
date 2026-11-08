@@ -122,6 +122,7 @@ STORE_REFRESH = 重新整理
 STORE_LOADING = 正在載入應用程式列表…
 STORE_LOAD_FAIL = 無法載入應用程式列表: %s
 STORE_NO_WIFI = 請連線 Wi-Fi
+STORE_NET_FAIL = 無法連線網際網路
 STORE_NO_SD = 請插入 SD 卡
 STORE_INSTALLED = 已安裝
 STORE_UPDATE = 更新

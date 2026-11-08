@@ -84,10 +84,11 @@ bool copyFile(const std::string& from, const std::string& to)
 
 }  // namespace
 
-Installer::State Installer::fail(const std::string& why)
+Installer::State Installer::fail(const std::string& why, const std::string& file)
 {
     error_ = why;
-    ESP_LOGE(TAG, "%s: %s", entry_.m.id.c_str(), why.c_str());
+    if (file.empty()) ESP_LOGE(TAG, "%s: %s", entry_.m.id.c_str(), why.c_str());
+    else ESP_LOGE(TAG, "%s/%s: %s", entry_.m.id.c_str(), file.c_str(), why.c_str());
     if (!staging_.empty()) rmTree(staging_);
     return state_ = State::Failed;
 }
@@ -127,9 +128,9 @@ Installer::State Installer::step()
 
     const hal::http::Download d = hal::http::download(
         fileUrl(base_, entry_, f), staging_ + "/" + f.path, f.size, kTimeoutMs);
-    if (!d.ok)                 return fail(f.path + ": " + d.error);
-    if (d.size != f.size)      return fail(f.path + ": size mismatch");
-    if (d.sha256 != f.sha256)  return fail(f.path + ": checksum mismatch");
+    if (!d.ok)                 return fail(d.error, f.path);
+    if (d.size != f.size)      return fail("size mismatch", f.path);
+    if (d.sha256 != f.sha256)  return fail("checksum mismatch", f.path);
     ++next_;
     return state_;
 }

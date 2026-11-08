@@ -122,6 +122,7 @@ STORE_REFRESH = 再読み込み
 STORE_LOADING = アプリ一覧を読み込み中…
 STORE_LOAD_FAIL = アプリ一覧を読み込めませんでした: %s
 STORE_NO_WIFI = Wi-Fiに接続してください
+STORE_NET_FAIL = インターネットに接続できません
 STORE_NO_SD = SDカードを入れてください
 STORE_INSTALLED = インストール済み
 STORE_UPDATE = アップデート

@@ -65,6 +65,7 @@ enum Lang { Ko = 0, En = 1 };
     X(STORE_LOAD_FAIL,    "앱 목록을 불러오지 못했습니다: %s",                 \
                           "Couldn't load the app list: %s")                     \
     X(STORE_NO_WIFI,      "Wi-Fi에 연결해 주세요", "Connect to Wi-Fi")          \
+    X(STORE_NET_FAIL,     "인터넷에 연결할 수 없습니다", "Can't reach the internet") \
     X(STORE_NO_SD,        "SD 카드를 넣어 주세요", "Insert an SD card")         \
     X(STORE_INSTALLED,    "설치됨",              "Installed")                   \
     X(STORE_UPDATE,       "업데이트",            "Update")                      \
