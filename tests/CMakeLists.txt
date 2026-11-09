@@ -74,14 +74,19 @@ endif()
 
 add_test(NAME ota COMMAND test_ota)
 
-# ui/: text wrap, pagination and ellipsis (the font is reached via a callback).
+# ui/: text wrap, pagination and ellipsis (the font is reached via a callback),
+# and the system gesture arbiter. widget.h pulls in core/framebuffer.h and
+# core/geometry.h, which are host-clean.
 set(UI_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../main/ui)
 
 add_executable(test_ui
     test_main.cpp
     test_ui.cpp
-    ${UI_DIR}/text_wrap.cpp)
-target_include_directories(test_ui PRIVATE ${UI_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+    test_gesture.cpp
+    ${UI_DIR}/text_wrap.cpp
+    ${UI_DIR}/gesture.cpp)
+target_include_directories(test_ui PRIVATE ${UI_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/../main/core
+                           ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
     target_compile_options(test_ui PRIVATE /W4 /utf-8)
