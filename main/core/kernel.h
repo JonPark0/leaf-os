@@ -50,7 +50,12 @@ public:
     // owning app/widget may be the one being destroyed).
     void pushApp(apps::App* child);   // launch on top; a second push in the same tick is dropped
     void popApp();                    // close the top app (no-op on root)
+    // Close every app above the root (home), top first. A push queued in the
+    // same tick is dropped. No-op on home.
+    void goHome();
     int  appDepth() const { return static_cast<int>(stack_.size()); }
+    // The foreground app, or nullptr before setRootApp().
+    apps::App* topApp() const { return stack_.empty() ? nullptr : stack_.back(); }
 
     // Direct-screen mode (no app stack) — used by bring-up tests only.
     void setScreen(ui::Screen* s) { direct_screen_ = s; }
@@ -81,12 +86,14 @@ private:
     void processNav();
     void doPush(apps::App* child);
     void doPop();
+    void doGoHome();
 
     void attachOverlay();  // point the status bar at the active screen
 
     std::vector<apps::App*> stack_;
     apps::App* pending_push_ = nullptr;
     bool       pending_pop_  = false;
+    bool       pending_home_ = false;
     const gfx::Font* ui_font_ = nullptr;
     ui::Screen* direct_screen_ = nullptr;
     ui::StatusBar status_bar_;

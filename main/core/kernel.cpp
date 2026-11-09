@@ -93,8 +93,23 @@ void Kernel::popApp()
     pending_pop_ = true;
 }
 
+void Kernel::goHome()
+{
+    pending_home_ = true;
+}
+
 void Kernel::processNav()
 {
+    if (pending_home_) {
+        // Home wins over anything else queued this tick. A queued child was
+        // never created, so it gets no lifecycle calls, just the delete.
+        pending_home_ = false;
+        pending_pop_  = false;
+        delete pending_push_;
+        pending_push_ = nullptr;
+        doGoHome();
+        return;
+    }
     if (pending_pop_)  { pending_pop_ = false; doPop(); }
     if (pending_push_) { apps::App* c = pending_push_; pending_push_ = nullptr; doPush(c); }
 }
@@ -125,6 +140,25 @@ void Kernel::doPop()
     if (stack_.back()->screen()) stack_.back()->screen()->invalidateAll();
     DisplayManager::instance().invalidateAll(RefreshHint::Page);  // fast full-frame
     ESP_LOGI(TAG, "pop -> '%s' (depth %d)", stack_.back()->meta().id, appDepth());
+}
+
+void Kernel::doGoHome()
+{
+    if (stack_.size() <= 1) return;  // already home
+    // Only the top app is running; the ones below were paused when they were
+    // covered, so they just get onDestroy.
+    stack_.back()->onPause();
+    while (stack_.size() > 1) {
+        apps::App* a = stack_.back();
+        stack_.pop_back();
+        a->onDestroy();
+        delete a;
+    }
+    stack_.back()->onResume();
+    attachOverlay();
+    if (stack_.back()->screen()) stack_.back()->screen()->invalidateAll();
+    DisplayManager::instance().invalidateAll(RefreshHint::Page);  // one refresh for the lot
+    ESP_LOGI(TAG, "home -> '%s'", stack_.back()->meta().id);
 }
 
 ui::Screen* Kernel::activeScreen() const
