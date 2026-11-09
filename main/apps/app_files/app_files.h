@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "widgets/button.h"
 #include "widgets/label.h"
@@ -13,19 +13,17 @@
 namespace apps {
 
 // SD-card file browser. Folders first, then files; tap a folder to descend,
-// ".." to go up (never above the mount point). Files are inert for now — the
+// ".." to go up (never above the mount point); back leaves the app from any
+// folder. Files are inert for now — the
 // reader will hook in here later. Registered only while a card is mounted
 // (app_registry `sdInserted`); if the card is pulled while browsing, the app
 // pops itself.
-class FilesApp : public App {
+class FilesApp : public PageApp {
 public:
+    FilesApp() : PageApp("files") {}
     void onCreate(const AppContext& ctx) override;
     void onResume() override;
     void onSystemChanged() override;   // SD insert / removal
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
-    bool onBack() override;             // ".." if not at root, else let kernel pop
 
 private:
     struct Entry {
@@ -38,10 +36,6 @@ private:
     void openEntry(int idx);
     void goUp();
 
-    AppMeta meta_{"files", "파일 관리자"};
-    ui::Screen   screen_;
-    ui::Button   back_;
-    ui::Label    path_;
     ui::Label    empty_;      // shown when the folder has no entries
     ui::ListView list_{nullptr};
 

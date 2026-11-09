@@ -21,6 +21,9 @@ public:
     const std::string& text() const { return text_; }
 
     void setAlign(Align a) { align_ = a; invalidate(); }
+    // Where overflowing text is cut: at the end (default) or at the start, which
+    // keeps the end visible (paths).
+    void setElideHead(bool head) { elide_head_ = head; invalidate(); }
     void setInk(uint8_t g) { ink_ = g; invalidate(); }
     void setBackground(uint8_t g) { bg_ = g; invalidate(); }  // kTransparent to skip
 
@@ -32,6 +35,7 @@ private:
     const gfx::Font* font_;
     std::string text_;
     Align align_   = Align::Left;
+    bool elide_head_ = false;
     uint8_t ink_   = core::kBlack;
     uint8_t bg_    = kTransparent;
 };

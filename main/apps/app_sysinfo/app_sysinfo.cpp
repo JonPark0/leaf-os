@@ -26,22 +26,12 @@ std::string humanBytes(uint64_t b)
 
 void SysInfoApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(SET_SYSINFO));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(SET_SYSINFO));
 
     const int top = bodyTop();
     body_.setFont(ctx.ui_font);
     body_.setAlign(ui::TextView::Align::Center);
-    body_.setBounds({0, top + 8, 480, 352});
+    body_.setBounds({0, top + 8, ui::metrics::kScreenW, 352});
     screen_.add(&body_);
 
     const int cy = top + 372;

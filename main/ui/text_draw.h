@@ -22,4 +22,9 @@ inline Measure measureWith(const gfx::Font& f)
 void drawEllipsized(core::Framebuffer& fb, const gfx::Font& f, int x, int baseline,
                     const std::string& s, int avail, uint8_t ink = core::kBlack);
 
+// Like drawEllipsized, but keeps the end of `s` and puts "..." in front:
+// for paths, where the last part matters most.
+void drawEllipsizedHead(core::Framebuffer& fb, const gfx::Font& f, int x, int baseline,
+                        const std::string& s, int avail, uint8_t ink = core::kBlack);
+
 }  // namespace ui::text

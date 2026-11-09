@@ -25,9 +25,7 @@ struct AppContext {
 };
 
 struct AppMeta {
-    const char* id   = "";   // stable identifier, also the SD manifest key
-    const char* name = "";    // display label (UTF-8)
-    // visible_when / icon come with the registry work
+    const char* id = "";   // stable identifier: logs, and the SD manifest key
 };
 
 class App {

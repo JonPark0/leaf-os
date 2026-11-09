@@ -11,24 +11,14 @@ namespace { using namespace core::i18n; }
 
 void AboutApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(SET_ABOUT));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(SET_ABOUT));
 
     const std::string version =
         std::string(tr(ABOUT_VERSION)) + " " + hal::sys::firmwareVersion();
 
     body_.setFont(ctx.ui_font);
     body_.setAlign(ui::TextView::Align::Center);
-    body_.setBounds({0, bodyTop() + 8, 480, 800 - bodyTop() - 8});
+    body_.setBounds({0, bodyTop() + 8, ui::metrics::kScreenW, ui::metrics::kScreenH - bodyTop() - 8});
     body_.setLines({
         "LEAF OS",
         "Lightweight/Lua EPD Application Framework",

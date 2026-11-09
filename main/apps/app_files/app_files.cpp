@@ -44,26 +44,11 @@ const char* iconForName(const char* name)
 
 void FilesApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    // Back button goes up a folder first, and only leaves the app at the root.
-    back_.setFont(ctx.ui_font);
-    back_.setLabel(tr(BACK));
-    back_.setBounds({8, ui::StatusBar::kHeight + 8, 104, 42});
-    back_.onClick([this] {
-        if (cur_ != hal::storage::mountPoint()) goUp();
-        else if (ctx_.pop) ctx_.pop();
-    });
-    screen_.add(&back_);
-
-    path_.setFont(ctx.ui_font);
-    path_.setBounds({120, ui::StatusBar::kHeight + 12, 352, 40});
-    path_.setAlign(ui::Label::Align::Left);
-    screen_.add(&path_);
+    setupPage(ctx, "", TitleStyle::BesideBack);   // the title shows the folder path
+    title_.setElideHead(true);                     // keep the current folder in view
 
     list_.setFont(ctx.ui_font);
-    list_.setBounds({0, bodyTop(), 480, 800 - bodyTop()});
+    list_.setBounds(ui::metrics::body());
     list_.onSelect([this](int i) { openEntry(i); });
     list_.iconFor([this](int i) -> const char* {
         if (i < 0 || i >= static_cast<int>(entries_.size())) return nullptr;
@@ -76,7 +61,7 @@ void FilesApp::onCreate(const AppContext& ctx)
     // Added after list_ so its white row-fill never paints over the message.
     empty_.setFont(ctx.ui_font);
     empty_.setText(tr(FILE_EMPTY));
-    empty_.setBounds({0, bodyTop() + 60, 480, 40});
+    empty_.setBounds({0, bodyTop() + 60, ui::metrics::kScreenW, 40});
     empty_.setAlign(ui::Label::Align::Center);
     empty_.setVisible(false);
     screen_.add(&empty_);
@@ -102,12 +87,6 @@ void FilesApp::onSystemChanged()
     }
 }
 
-bool FilesApp::onBack()
-{
-    if (cur_ != hal::storage::mountPoint()) { goUp(); return true; }
-    return false;   // at root — let the kernel pop us
-}
-
 void FilesApp::goUp()
 {
     const std::string root = hal::storage::mountPoint();
@@ -124,7 +103,7 @@ void FilesApp::loadDir(const std::string& path)
     DIR* d = ::opendir(path.c_str());
     if (!d) {
         ESP_LOGW(TAG, "opendir(%s) failed", path.c_str());
-        path_.setText(path.c_str());
+        title_.setText(path.c_str());
         list_.setItems({});
         list_.setVisible(false);
         empty_.setText(tr(FILE_UNREADABLE));
@@ -170,7 +149,7 @@ void FilesApp::loadDir(const std::string& path)
         rows.emplace_back(e.name + "    " + sz);
     }
 
-    path_.setText(path.c_str());
+    title_.setText(path.c_str());
     list_.setItems(std::move(rows));
     list_.setVisible(!entries_.empty());
     empty_.setText(tr(FILE_EMPTY));

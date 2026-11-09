@@ -44,7 +44,7 @@ void HomeApp::rebuild()
     sd_icons_.clear();
     sd_icons_.resize(static_cast<size_t>(sdn));
 
-    const int cw = (480 - 2 * kMargin - (kCols - 1) * kGapX) / kCols;
+    const int cw = (ui::metrics::kScreenW - 2 * kMargin - (kCols - 1) * kGapX) / kCols;
     auto place = [&](int idx, int slot) {
         const int r = slot / kCols, c = slot % kCols;
         ui::AppTile& t = tiles_[idx];
@@ -74,7 +74,7 @@ void HomeApp::rebuild()
     const int sep_y = kTop + builtin_rows * (kCellH + kGapY) - kGapY / 2 - 1;
     divider_.setBackground(core::kBlack);
     divider_.setText("");
-    divider_.setBounds({kMargin, sep_y, 480 - 2 * kMargin, 2});
+    divider_.setBounds({kMargin, sep_y, ui::metrics::kScreenW - 2 * kMargin, 2});
     screen_.add(&divider_);
 
     for (int j = 0; j < sdn; ++j) {

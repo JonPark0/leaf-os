@@ -49,17 +49,7 @@ void drawPowerOffScreen()
 
 void PowerApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-    screen_.add(&back_);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(PWR_TITLE));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
-    screen_.add(&title_);
+    setupPage(ctx, tr(PWR_TITLE));
 
     const int x = 90, w = 300, h = 64;
     int y = bodyTop() + 40;

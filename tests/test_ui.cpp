@@ -98,6 +98,14 @@ TEST(paginate_empty_and_tall_lines)
     EXPECT_EQ(paginate(lines, 120, 60, 100).size(), size_t(2));   // each line its own page
 }
 
+TEST(fit_suffix_keeps_the_end)
+{
+    EXPECT_EQ(fitSuffixStart("hello", 50, 30, kM), size_t(0));          // fits whole
+    EXPECT_EQ(fitSuffixStart("/sd/books/novels", 100, 30, kM), size_t(9));  // "...novels"
+    EXPECT_EQ(fitSuffixStart("가나다", 50, 10, kM), size_t(3));           // "..." + 나다
+    EXPECT_EQ(fitSuffixStart("가나다", 5, 10, kM), size_t(9));            // nothing fits
+}
+
 TEST(fit_prefix_cuts_on_scalars)
 {
     EXPECT_EQ(fitPrefix("hello", 50, 30, kM), size_t(5));        // fits whole

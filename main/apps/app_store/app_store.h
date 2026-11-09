@@ -12,7 +12,7 @@
 #include <string>
 #include <vector>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "catalog.h"
 #include "installer.h"
@@ -23,15 +23,13 @@
 
 namespace apps {
 
-class StoreApp : public App {
+class StoreApp : public PageApp {
 public:
+    StoreApp() : PageApp("store") {}
     void onCreate(const AppContext& ctx) override;
     void onResume() override;
     void onTick() override;
     void onSystemChanged() override { rebuildRows(); }
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     struct Row {
@@ -45,10 +43,6 @@ private:
     void rebuildRows();
     void onRow(int i);
 
-    AppMeta meta_{"store", "앱"};
-    ui::Screen   screen_;
-    ui::Button   back_;
-    ui::Label    title_;
     ui::Label    status_;
     ui::ListView list_;
 
@@ -58,7 +52,7 @@ private:
     int load_in_ticks_ = -1;  // >0: load after this many ticks (lets the text paint)
 };
 
-class StoreDetailApp : public App {
+class StoreDetailApp : public PageApp {
 public:
     // `entry` null: an installed app the catalog does not list (delete only).
     StoreDetailApp(std::string base, const appstore::CatalogEntry* entry,
@@ -69,18 +63,11 @@ public:
     void onDestroy() override { installer_.cancel(); }
     void onSystemChanged() override;
 
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
-
 private:
     void refresh();         // texts and buttons from the current state
     void tapInstall();
     void tapDelete();
 
-    AppMeta meta_{"store_detail", ""};
-    ui::Screen screen_;
-    ui::Button back_;
-    ui::Label  title_;
     ui::TextView body_;
     ui::Button install_;
     ui::Button delete_;

@@ -25,7 +25,7 @@ public:
 private:
     void rebuild();  // (re)build the launcher grid from the visible registry
 
-    AppMeta meta_{"home", "홈"};
+    AppMeta meta_{"home"};
     ui::Screen screen_;
     std::vector<ui::AppTile> tiles_;   // builtin tiles, then SD-app tiles
     ui::Label divider_;                // rule above the SD-app section

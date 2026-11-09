@@ -71,4 +71,17 @@ size_t fitPrefix(const std::string& s, int avail, int suffix_w, const Measure& m
     return n;
 }
 
+size_t fitSuffixStart(const std::string& s, int avail, int prefix_w, const Measure& measure)
+{
+    if (measure(s.c_str(), static_cast<int>(s.size())) <= avail) return 0;
+    size_t start = 0;
+    while (start < s.size()) {
+        start += static_cast<size_t>(u8len(static_cast<unsigned char>(s[start])));
+        if (start >= s.size()) return s.size();
+        if (prefix_w + measure(s.c_str() + start, static_cast<int>(s.size() - start)) <= avail)
+            break;
+    }
+    return start;
+}
+
 }  // namespace ui::text

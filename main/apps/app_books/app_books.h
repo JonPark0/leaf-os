@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 
-#include "app.h"
+#include "page_app.h"
 #include "app_common.h"
 #include "widgets/button.h"
 #include "widgets/label.h"
@@ -20,14 +20,12 @@ namespace apps {
 //
 // Cover-thumbnail grid (plan step 20) needs an image decoder and is deferred;
 // this is the list-mode v1.
-class BooksApp : public App {
+class BooksApp : public PageApp {
 public:
+    BooksApp() : PageApp("reader") {}
     void onCreate(const AppContext& ctx) override;
     void onResume() override;
     void onSystemChanged() override;
-
-    ui::Screen* screen() override { return &screen_; }
-    const AppMeta& meta() const override { return meta_; }
 
 private:
     struct Book {
@@ -43,10 +41,6 @@ private:
     void scan();
     void openBook(int idx);
 
-    AppMeta meta_{"reader", "책"};
-    ui::Screen   screen_;
-    ui::Button   back_;
-    ui::Label    title_;
     ui::Label    empty_;
     ui::ListView list_{nullptr};
 

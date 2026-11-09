@@ -35,15 +35,7 @@ const char* statusText(hal::wifi::Status s)
 
 void WifiApp::onCreate(const AppContext& ctx)
 {
-    App::onCreate(ctx);
-    screen_.setBackground(core::kWhite);
-
-    makeBackButton(back_, ctx);
-
-    title_.setFont(ctx.ui_font);
-    title_.setText(tr(WIFI_TITLE));
-    title_.setBounds({130, ui::StatusBar::kHeight + 10, 220, 40});
-    title_.setAlign(ui::Label::Align::Center);
+    setupPage(ctx, tr(WIFI_TITLE));   // showList() rebuilds the widget set
 
     // Wi-Fi on/off row — its own line, well clear of "다시 검색". The checkbox
     // bounds must NOT overlap the label (Checkbox::draw fills its whole rect
@@ -68,7 +60,7 @@ void WifiApp::onCreate(const AppContext& ctx)
     rescan_.onClick([this] { startScan(); });
 
     list_.setFont(ctx.ui_font);
-    list_.setBounds({0, bodyTop() + 138, 480, 800 - (bodyTop() + 138)});
+    list_.setBounds({0, bodyTop() + 138, ui::metrics::kScreenW, ui::metrics::kScreenH - (bodyTop() + 138)});
     list_.onSelect([this](int i) {
         if (i < 0 || i >= static_cast<int>(rows_.size())) return;
         const NetRow& r = rows_[i];
@@ -137,7 +129,7 @@ void WifiApp::onCreate(const AppContext& ctx)
     });
 
     kb_.setFont(ctx.ui_font);
-    kb_.setBounds({0, 800 - 300, 480, 300});
+    kb_.setBounds({0, ui::metrics::kScreenH - 300, ui::metrics::kScreenW, 300});
     kb_.onChar([this](uint32_t cp) { pw_field_.insertUtf8(cp); });
     kb_.onBackspace([this] { pw_field_.backspace(); });
     kb_.onEnter([this] { joinSelected(pw_field_.text()); });
@@ -197,8 +189,7 @@ void WifiApp::showList()
     in_password_ = false;
     core::DisplayManager::instance().holdFullRefresh(false);
     screen_.clearWidgets();
-    screen_.add(&back_);
-    screen_.add(&title_);
+    addHeader();
     screen_.add(&wifi_label_);
     screen_.add(&wifi_on_);
     screen_.add(&status_);

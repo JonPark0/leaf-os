@@ -10,16 +10,13 @@
 #include "app.h"
 #include "geometry.h"
 #include "i18n.h"
+#include "metrics.h"
 #include "status_bar.h"
 #include "widgets/button.h"
 
 namespace apps {
 
-inline core::Rect contentRect()
-{
-    const int top = ui::StatusBar::kHeight;
-    return {0, top, 480, 800 - top};
-}
+inline core::Rect contentRect() { return ui::metrics::content(); }
 
 // Places `btn` as a back control just under the status bar and wires it to pop.
 // A null label uses the translated default ("← 뒤로" / "← Back").
@@ -27,11 +24,11 @@ inline void makeBackButton(ui::Button& btn, const AppContext& ctx, const char* l
 {
     btn.setFont(ctx.ui_font);
     btn.setLabel(label ? label : core::i18n::tr(core::i18n::BACK));
-    btn.setBounds({8, ui::StatusBar::kHeight + 8, 104, 42});
+    btn.setBounds(ui::metrics::backButton());
     btn.onClick([ctx] { if (ctx.pop) ctx.pop(); });
 }
 
-inline int bodyTop() { return ui::StatusBar::kHeight + 60; }
+inline int bodyTop() { return ui::metrics::bodyTop(); }
 
 // printf-style `fmt` with one "%s" (e.g. a translated "Author: %s").
 inline std::string formatArg(const char* fmt, const std::string& arg)

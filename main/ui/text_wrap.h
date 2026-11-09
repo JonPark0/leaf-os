@@ -38,6 +38,11 @@ std::vector<size_t> paginate(const std::vector<Line>& lines, int line_h, int gap
 // suffix `suffix_w` px wide.
 size_t fitPrefix(const std::string& s, int avail, int suffix_w, const Measure& measure);
 
+// Byte offset where the tail of `s` to draw starts so it fits in `avail` px
+// after a prefix `prefix_w` px wide: 0 if all of it fits, otherwise the start
+// of the longest suffix (on a UTF-8 boundary) that leaves room for the prefix.
+size_t fitSuffixStart(const std::string& s, int avail, int prefix_w, const Measure& measure);
+
 // Byte length of the UTF-8 sequence that starts with `lead`.
 inline int u8len(unsigned char lead) { return lead < 0x80 ? 1 : lead < 0xE0 ? 2 : lead < 0xF0 ? 3 : 4; }
 

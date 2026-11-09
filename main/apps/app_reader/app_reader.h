@@ -72,7 +72,7 @@ private:
     }
     std::string legacyPosPath() const { return path_ + ".pos"; }
 
-    AppMeta meta_{"reader-view", "책"};   // "reader" is the bookshelf (app_books)
+    AppMeta meta_{"reader-view"};   // "reader" is the bookshelf (app_books)
     ui::Screen screen_;
     View view_{this};
     ui::Button back_;         // visible only while the status bar is shown
