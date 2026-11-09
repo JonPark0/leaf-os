@@ -109,6 +109,9 @@ enum Lang { Ko = 0, En = 1 };
     X(SET_LANGUAGE,       "언어 / Language",     "Language")                     \
     X(SET_POWER,          "전원",                "Power")                        \
     X(SET_RESTART_APPLY,  "재시작하여 적용",     "Restart to apply")             \
+    X(SET_GESTURES_FMT,   "제스처: %s",         "Gestures: %s")                  \
+    X(SET_ON,             "켜짐",               "on")                            \
+    X(SET_OFF,            "꺼짐",               "off")                           \
     /* system status page */                                                    \
     X(SYS_BATTERY,        "배터리",              "Battery")                      \
     X(SYS_STORAGE,        "SD 카드",             "SD card")                      \

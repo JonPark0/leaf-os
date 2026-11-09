@@ -73,6 +73,11 @@ public:
     bool brightnessGauge() const { return bright_gauge_; }
     void setBrightnessGauge(bool v);
 
+    // System gestures: pull down from the status bar, swipe up from the
+    // bottom edge (ui::GestureArbiter). Read by the kernel at each touch-down.
+    bool gesturesEnabled() const { return gestures_; }
+    void setGesturesEnabled(bool v);
+
 private:
     Settings() = default;
     void putInt(const char* key, int32_t v);
@@ -93,6 +98,7 @@ private:
     bool wifi_auto_       = true;
     bool batt_gauge_      = true;    // status bar: battery as a gauge icon
     bool bright_gauge_    = false;   // status bar: brightness as text %
+    bool gestures_        = true;
     std::string font_name_ = "NanumGothic";
     std::string ui_font_family_;
     std::string read_font_family_;

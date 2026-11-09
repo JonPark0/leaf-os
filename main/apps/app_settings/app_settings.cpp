@@ -19,6 +19,12 @@ namespace apps {
 namespace {
 using namespace core::i18n;
 [[maybe_unused]] constexpr char TAG[] = "app_settings";
+
+std::string gesturesRow()
+{
+    const bool on = core::Settings::instance().gesturesEnabled();
+    return formatArg(tr(SET_GESTURES_FMT), tr(on ? SET_ON : SET_OFF));
+}
 }  // namespace
 
 void SettingsApp::onCreate(const AppContext& ctx)
@@ -48,6 +54,7 @@ void SettingsApp::rebuildRows()
     row_kind_.clear();
     if (st.restartPending()) { items.emplace_back(tr(SET_RESTART_APPLY)); row_kind_.push_back(kRestart); }
     items.emplace_back(tr(SET_DISPLAY));   row_kind_.push_back(kDisplay);
+    items.emplace_back(gesturesRow());     row_kind_.push_back(kGestures);
     items.emplace_back(wifi);              row_kind_.push_back(kWifi);
     items.emplace_back(tr(SET_TIME));      row_kind_.push_back(kTime);
     items.emplace_back(tr(SET_LANGUAGE));  row_kind_.push_back(kLanguage);
@@ -64,6 +71,14 @@ void SettingsApp::onRow(int idx)
     switch (row_kind_[idx]) {
         case kRestart:  ctx_.push(new PowerApp());    return;
         case kDisplay:  ctx_.push(new DisplayApp());  return;
+        case kGestures: {
+            // Flips in place (the list keeps its page); the kernel reads the
+            // setting at the next touch.
+            auto& st = core::Settings::instance();
+            st.setGesturesEnabled(!st.gesturesEnabled());
+            list_.setItem(idx, gesturesRow());
+            return;
+        }
         case kWifi:     ctx_.push(new WifiApp());     return;
         case kTime:     ctx_.push(new TimeApp());     return;
         case kLanguage: ctx_.push(new LanguageApp()); return;

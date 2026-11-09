@@ -161,3 +161,6 @@ UPD_LOW_BATTERY = バッテリーを30%以上充電してください
 UPD_ROLLED_BACK = %s は起動できなかったため元に戻しました
 UPD_NOTES = 変更内容:
 UPD_KEEP_ON = 更新中はこの画面のままにしてください
+SET_GESTURES_FMT = ジェスチャー: %s
+SET_ON = オン
+SET_OFF = オフ
