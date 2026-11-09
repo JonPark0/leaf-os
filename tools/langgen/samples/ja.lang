@@ -164,3 +164,7 @@ UPD_KEEP_ON = 更新中はこの画面のままにしてください
 SET_GESTURES_FMT = ジェスチャー: %s
 SET_ON = オン
 SET_OFF = オフ
+QS_TITLE = クイック設定
+QS_WIFI = Wi-Fi
+QS_CLEAR_SCREEN = 画面をクリア
+QS_STATUS_FMT = バッテリー %s · %s

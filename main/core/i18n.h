@@ -192,6 +192,11 @@ enum Lang { Ko = 0, En = 1 };
                           "EPUB inflate: ESP32-S3 ROM miniz")                   \
     X(ABOUT_OSS_NOTE,     "오픈소스 고지 전문: docs/THIRD_PARTY.md",             \
                           "Full OSS notices: docs/THIRD_PARTY.md")              \
+    /* quick settings */                                                        \
+    X(QS_TITLE,           "빠른 설정",          "Quick settings")                \
+    X(QS_WIFI,            "Wi-Fi",              "Wi-Fi")                         \
+    X(QS_CLEAR_SCREEN,    "화면 지우기",        "Clear screen")                  \
+    X(QS_STATUS_FMT,      "배터리 %s · %s",     "Battery %s · %s")               \
     /* language page */                                                         \
     X(LANG_TITLE,         "언어 / Language",     "Language")                     \
     X(LANG_KOREAN,        "한국어",              "한국어")                       \
