@@ -110,14 +110,18 @@ void Kernel::processNav()
         doGoHome();
         return;
     }
-    if (pending_pop_)  { pending_pop_ = false; doPop(); }
-    if (pending_push_) { apps::App* c = pending_push_; pending_push_ = nullptr; doPush(c); }
+    // A pop and a push in the same tick replace the top app. The app beneath
+    // stays paused instead of being resumed and paused again at once: a Lua
+    // app's on_show may start a fetch, the reader repaints and saves.
+    const bool replace = pending_pop_ && pending_push_ && stack_.size() > 1;
+    if (pending_pop_)  { pending_pop_ = false; doPop(!replace); }
+    if (pending_push_) { apps::App* c = pending_push_; pending_push_ = nullptr; doPush(c, !replace); }
 }
 
-void Kernel::doPush(apps::App* child)
+void Kernel::doPush(apps::App* child, bool pause_below)
 {
     if (child == nullptr) return;
-    if (!stack_.empty()) stack_.back()->onPause();
+    if (pause_below && !stack_.empty()) stack_.back()->onPause();
     child->onCreate(makeContext());
     child->onResume();
     stack_.push_back(child);
@@ -127,7 +131,7 @@ void Kernel::doPush(apps::App* child)
     ESP_LOGI(TAG, "push '%s' (depth %d)", child->meta().id, appDepth());
 }
 
-void Kernel::doPop()
+void Kernel::doPop(bool resume_below)
 {
     if (stack_.size() <= 1) return;  // never pop the root
     apps::App* top = stack_.back();
@@ -135,7 +139,7 @@ void Kernel::doPop()
     top->onPause();
     top->onDestroy();
     delete top;
-    stack_.back()->onResume();
+    if (resume_below) stack_.back()->onResume();
     attachOverlay();
     if (stack_.back()->screen()) stack_.back()->screen()->invalidateAll();
     DisplayManager::instance().invalidateAll(RefreshHint::Page);  // fast full-frame

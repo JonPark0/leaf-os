@@ -84,8 +84,10 @@ private:
     // never from inside a widget callback, whose owning app/screen may be the
     // one being destroyed (use-after-free otherwise).
     void processNav();
-    void doPush(apps::App* child);
-    void doPop();
+    // `pause_below` / `resume_below` are false when a pop and a push in the
+    // same tick replace the top app (see processNav).
+    void doPush(apps::App* child, bool pause_below = true);
+    void doPop(bool resume_below = true);
     void doGoHome();
 
     void attachOverlay();  // point the status bar at the active screen

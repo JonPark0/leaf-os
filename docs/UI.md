@@ -80,7 +80,8 @@ and `ui/text_draw` (ellipsis), so both look the same.
 - **Page, don't scroll.** One partial refresh per page turn.
 - **Navigation is queued.** `ctx_.push` / `ctx_.pop` take effect at the top
   of the next tick, so they are safe inside a click handler. One push per tick;
-  a second is dropped.
+  a second is dropped. A pop and a push in the same tick replace the top app;
+  the app beneath stays paused.
 - **Glyphs.** The embedded font lacks some symbols (U+2026 `…`, math minus,
   misc technical). Use ASCII (`...`, `-`), arrows, or an icon.
 - **Text comes from `core::i18n::tr`.** Format with `formatArg` from
