@@ -16,6 +16,7 @@
 #include <freertos/task.h>
 
 #include "app_home/app_home.h"
+#include "app_quick/app_quick.h"
 #include "font.h"
 #include "font_scan.h"
 #include "i18n.h"
@@ -184,6 +185,13 @@ extern "C" void app_main()
 
     static apps::HomeApp home;
     kernel.setRootApp(&home);
+
+    // Pull-down from the status bar opens quick settings, unless it is already up.
+    kernel.onPullDown([&kernel] {
+        const apps::App* top = kernel.topApp();
+        if (top && std::strcmp(top->meta().id, apps::QuickSettingsApp::kId) == 0) return;
+        kernel.pushApp(new apps::QuickSettingsApp());
+    });
 
     // A freshly updated image is on probation until it has run this long; a
     // crash or reset before then boots the previous one (docs/design/ota-update.md).

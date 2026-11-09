@@ -10,6 +10,7 @@
 #include "hal_sys.h"
 #include "hal_touch.h"
 #include "hal_wifi.h"
+#include "settings.h"
 
 namespace core {
 namespace {
@@ -34,6 +35,8 @@ bool Kernel::init(const ssd1677::HwHooks& hooks)
         ESP_LOGE(TAG, "DisplayManager init failed");
         return false;
     }
+    // Room for a held touch given back at once, so the input loop never allocates.
+    touch_out_.reserve(ui::GestureArbiter::kMaxHeldMoves + 2);
     ready_ = true;
     return true;
 }
@@ -233,16 +236,37 @@ void Kernel::stepInput()
         activity = true;
     }
 
-    // --- touch -> Down / Move / Up ---
+    // --- touch -> Down / Move / Up -> system gestures -> screen ---
     const int tn = hal::touch::read(tpts, 2);
     const bool down = tn > 0;
-    if (scr) {
-        if (down && !was_down_) {
+    if (scr && (down || was_down_)) {
+        const ui::TouchPhase phase = !was_down_ ? ui::TouchPhase::Down
+                                   : down       ? ui::TouchPhase::Move
+                                                : ui::TouchPhase::Up;
+        if (phase == ui::TouchPhase::Down) {
             ESP_LOGI(TAG, "touch down (%d,%d)", tpts[0].x, tpts[0].y);
-            scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Down);
+            // The arbiter reads these at Down only. The strip is claimed only
+            // while the status bar shows (the reader's full-screen mode hides it).
+            gesture_.setEnabled(Settings::instance().gesturesEnabled());
+            gesture_.setZones(status_bar_.visible() ? ui::StatusBar::kHeight : 0,
+                              Framebuffer::kH);
+            touch_screen_ = scr;
+        } else if (scr != touch_screen_) {
+            // The screen changed under the finger (an app closed itself, the
+            // SD card went). What the arbiter held was meant for the old one.
+            gesture_.reset();
+            touch_screen_ = scr;
         }
-        else if (down && was_down_)  scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Move);
-        else if (!down && was_down_) scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Up);
+        touch_out_.clear();
+        const ui::Gesture g = gesture_.feed(tpts[0].x, tpts[0].y, phase, t / 1000, touch_out_);
+        for (const ui::TouchEvent& e : touch_out_) scr->handleTouch(e.x, e.y, e.phase);
+        if (g == ui::Gesture::PullDown) {
+            ESP_LOGI(TAG, "gesture: pull down");
+            if (pull_down_cb_) pull_down_cb_();
+        } else if (g == ui::Gesture::SwipeUp) {
+            ESP_LOGI(TAG, "gesture: swipe up");
+            goHome();
+        }
     }
     if (down != was_down_ || down) activity = true;
     was_down_ = down;

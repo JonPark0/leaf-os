@@ -50,6 +50,12 @@ public:
     // sample, if any.
     Gesture feed(int x, int y, TouchPhase phase, int64_t now_ms, std::vector<TouchEvent>& out);
 
+    // Drops the touch in progress, held events included; the rest of it then
+    // passes through as strays (Moves and an Up with no Down). The kernel calls
+    // this when the screen changes under a touch, so a held tap is never
+    // replayed onto a screen it was not meant for.
+    void reset();
+
 private:
     enum class Mode {
         Idle,    // no touch in progress

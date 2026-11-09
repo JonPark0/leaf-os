@@ -15,6 +15,13 @@ void GestureArbiter::setZones(int strip_h, int screen_h)
     screen_h_ = screen_h;
 }
 
+void GestureArbiter::reset()
+{
+    mode_ = Mode::Idle;
+    started_ = false;
+    held_n_ = 0;
+}
+
 Gesture GestureArbiter::feed(int x, int y, TouchPhase phase, int64_t now_ms,
                              std::vector<TouchEvent>& out)
 {

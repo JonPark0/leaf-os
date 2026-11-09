@@ -3,8 +3,9 @@
  *
  * run() owns two tasks, each repeating one step:
  *   input  (this thread) — stepInput(): polls hal::touch / hal::keys at ~60 Hz,
- *                          turns touch into Down/Move/Up phases, routes to the
- *                          active Screen, applies the default side-key action
+ *                          turns touch into Down/Move/Up phases, passes them
+ *                          through the system gestures (ui::GestureArbiter) to
+ *                          the active Screen, applies the default side-key action
  *                          (front-light brightness) when the Screen does not
  *                          consume the key, then calls Screen::paint().
  *   render (spawned)     — stepRender(): performs the blocking panel refresh
@@ -19,6 +20,7 @@
 #include <functional>
 #include <vector>
 
+#include "gesture.h"
 #include "hal_touch.h"
 #include "screen.h"
 #include "ssd1677.h"
@@ -66,6 +68,10 @@ public:
     // Optional: called once per input tick, after touch/keys, before paint.
     void onTick(std::function<void()> cb) { tick_cb_ = std::move(cb); }
 
+    // Called when the user pulls down from the status bar. main.cpp opens quick
+    // settings, so the kernel needs no app types. (Swipe up calls goHome().)
+    void onPullDown(std::function<void()> cb) { pull_down_cb_ = std::move(cb); }
+
     [[noreturn]] void run();  // never returns
 
     void stepInput();   // one input tick
@@ -102,12 +108,16 @@ private:
 
     std::function<void(int)> bright_cb_;
     std::function<void()> tick_cb_;
+    std::function<void()> pull_down_cb_;
 
     // Written by the input loop, read by the render task on the other core;
     // a plain 64-bit volatile can tear on Xtensa.
     std::atomic<int64_t> last_input_us_{0};
     std::atomic<bool>    input_held_{false};
     bool    was_down_ = false;         // input task only
+    ui::GestureArbiter gesture_;           // input task only
+    ui::Screen* touch_screen_ = nullptr;   // input task only: where the touch went down
+    std::vector<ui::TouchEvent> touch_out_;  // input task only, reused each tick
     // Input task only. Kept across ticks: read() leaves it untouched on release,
     // so the Up phase reports where the finger was last seen.
     hal::touch::Point touch_pts_[2];

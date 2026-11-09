@@ -445,3 +445,40 @@ TEST(gesture_down_while_in_strip_starts_over)
     EXPECT_EQ(r.up(240, 720), Gesture::SwipeUp);
     EXPECT_STREQ(trace(r.out), "");
 }
+
+// --- reset (the screen changed under the finger) ----------------------------
+
+TEST(gesture_reset_drops_a_held_tap)
+{
+    Rig r;
+    r.down(240, kBandTop);
+    r.move(250, kBandTop);
+    r.g.reset();
+    // The held Down and Move are gone; what follows arrives as strays, which
+    // Screen ignores, instead of a whole tap on the new screen.
+    EXPECT_EQ(r.move(250, kBandTop), Gesture::None);
+    EXPECT_EQ(r.up(250, kBandTop), Gesture::None);
+    EXPECT_STREQ(trace(r.out), "M250,760 U250,760");
+}
+
+TEST(gesture_reset_cancels_a_pull_down)
+{
+    Rig r;
+    r.down(240, 10);
+    r.move(240, 50);
+    r.g.reset();
+    EXPECT_EQ(r.up(240, 100), Gesture::None);
+    EXPECT_STREQ(trace(r.out), "U240,100");
+}
+
+TEST(gesture_reset_leaves_the_next_touch_alone)
+{
+    Rig r;
+    r.down(240, kBandTop);
+    r.g.reset();
+    r.up(240, kBandTop);
+    r.out.clear();
+    r.down(240, kBandTop);
+    EXPECT_EQ(r.up(240, kBandTop - GestureArbiter::kTriggerPx), Gesture::SwipeUp);
+    EXPECT_STREQ(trace(r.out), "");
+}
