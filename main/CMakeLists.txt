@@ -38,6 +38,7 @@ idf_component_register(
         "apps/lua"
         "apps/app_store"
         "apps/app_update"
+        "apps/app_quick"
         "appstore"
         "ota"
     INCLUDE_DIRS

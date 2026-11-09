@@ -54,7 +54,20 @@ font at runtime, so these are read in `onCreate`, never cached in statics.
 
 The status bar strip belongs to the system: `Screen` keeps every touch there
 from the app, even though the bar takes none itself. Full-screen views (Lua
-apps, the reader) rely on that, and the pull-down gesture will claim it.
+apps, the reader) rely on that, and the pull-down gesture claims it.
+
+## System gestures
+
+`ui::GestureArbiter` (`ui/gesture.h`) sits between `Kernel::stepInput` and
+`Screen::handleTouch` (design: `docs/design/gestures.md`):
+
+- **Pull down** 60 px from the status bar strip opens quick settings
+  (`apps/app_quick`). Only while the bar shows.
+- **Swipe up** 60 px from the bottom 40 px goes home (`Kernel::goHome`).
+- A touch that starts in that bottom band is held until it lifts or is clearly
+  not a swipe up, then delivered in order. Widgets act on Up and do not change
+  their look on Down, so a held tap behaves the same; keep it that way.
+- 설정 → 제스처 off passes every touch straight through.
 
 ## Widgets
 
@@ -80,7 +93,8 @@ and `ui/text_draw` (ellipsis), so both look the same.
 - **Page, don't scroll.** One partial refresh per page turn.
 - **Navigation is queued.** `ctx_.push` / `ctx_.pop` take effect at the top
   of the next tick, so they are safe inside a click handler. One push per tick;
-  a second is dropped.
+  a second is dropped. A pop and a push in the same tick replace the top app;
+  the app beneath stays paused.
 - **Glyphs.** The embedded font lacks some symbols (U+2026 `…`, math minus,
   misc technical). Use ASCII (`...`, `-`), arrows, or an icon.
 - **Text comes from `core::i18n::tr`.** Format with `formatArg` from

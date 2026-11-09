@@ -17,7 +17,7 @@ public:
     void onResume() override;
 
 private:
-    enum RowKind { kRestart, kDisplay, kWifi, kTime, kLanguage, kSysInfo, kPower, kUpdate, kAbout };
+    enum RowKind { kRestart, kDisplay, kGestures, kWifi, kTime, kLanguage, kSysInfo, kPower, kUpdate, kAbout };
 
     void rebuildRows();
     void onRow(int idx);

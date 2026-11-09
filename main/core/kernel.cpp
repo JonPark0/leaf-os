@@ -10,6 +10,7 @@
 #include "hal_sys.h"
 #include "hal_touch.h"
 #include "hal_wifi.h"
+#include "settings.h"
 
 namespace core {
 namespace {
@@ -34,6 +35,8 @@ bool Kernel::init(const ssd1677::HwHooks& hooks)
         ESP_LOGE(TAG, "DisplayManager init failed");
         return false;
     }
+    // Room for a held touch given back at once, so the input loop never allocates.
+    touch_out_.reserve(ui::GestureArbiter::kMaxHeldMoves + 2);
     ready_ = true;
     return true;
 }
@@ -93,16 +96,35 @@ void Kernel::popApp()
     pending_pop_ = true;
 }
 
-void Kernel::processNav()
+void Kernel::goHome()
 {
-    if (pending_pop_)  { pending_pop_ = false; doPop(); }
-    if (pending_push_) { apps::App* c = pending_push_; pending_push_ = nullptr; doPush(c); }
+    pending_home_ = true;
 }
 
-void Kernel::doPush(apps::App* child)
+void Kernel::processNav()
+{
+    if (pending_home_) {
+        // Home wins over anything else queued this tick. A queued child was
+        // never created, so it gets no lifecycle calls, just the delete.
+        pending_home_ = false;
+        pending_pop_  = false;
+        delete pending_push_;
+        pending_push_ = nullptr;
+        doGoHome();
+        return;
+    }
+    // A pop and a push in the same tick replace the top app. The app beneath
+    // stays paused instead of being resumed and paused again at once: a Lua
+    // app's on_show may start a fetch, the reader repaints and saves.
+    const bool replace = pending_pop_ && pending_push_ && stack_.size() > 1;
+    if (pending_pop_)  { pending_pop_ = false; doPop(!replace); }
+    if (pending_push_) { apps::App* c = pending_push_; pending_push_ = nullptr; doPush(c, !replace); }
+}
+
+void Kernel::doPush(apps::App* child, bool pause_below)
 {
     if (child == nullptr) return;
-    if (!stack_.empty()) stack_.back()->onPause();
+    if (pause_below && !stack_.empty()) stack_.back()->onPause();
     child->onCreate(makeContext());
     child->onResume();
     stack_.push_back(child);
@@ -112,7 +134,7 @@ void Kernel::doPush(apps::App* child)
     ESP_LOGI(TAG, "push '%s' (depth %d)", child->meta().id, appDepth());
 }
 
-void Kernel::doPop()
+void Kernel::doPop(bool resume_below)
 {
     if (stack_.size() <= 1) return;  // never pop the root
     apps::App* top = stack_.back();
@@ -120,11 +142,30 @@ void Kernel::doPop()
     top->onPause();
     top->onDestroy();
     delete top;
-    stack_.back()->onResume();
+    if (resume_below) stack_.back()->onResume();
     attachOverlay();
     if (stack_.back()->screen()) stack_.back()->screen()->invalidateAll();
     DisplayManager::instance().invalidateAll(RefreshHint::Page);  // fast full-frame
     ESP_LOGI(TAG, "pop -> '%s' (depth %d)", stack_.back()->meta().id, appDepth());
+}
+
+void Kernel::doGoHome()
+{
+    if (stack_.size() <= 1) return;  // already home
+    // Only the top app is running; the ones below were paused when they were
+    // covered, so they just get onDestroy.
+    stack_.back()->onPause();
+    while (stack_.size() > 1) {
+        apps::App* a = stack_.back();
+        stack_.pop_back();
+        a->onDestroy();
+        delete a;
+    }
+    stack_.back()->onResume();
+    attachOverlay();
+    if (stack_.back()->screen()) stack_.back()->screen()->invalidateAll();
+    DisplayManager::instance().invalidateAll(RefreshHint::Page);  // one refresh for the lot
+    ESP_LOGI(TAG, "home -> '%s'", stack_.back()->meta().id);
 }
 
 ui::Screen* Kernel::activeScreen() const
@@ -195,16 +236,37 @@ void Kernel::stepInput()
         activity = true;
     }
 
-    // --- touch -> Down / Move / Up ---
+    // --- touch -> Down / Move / Up -> system gestures -> screen ---
     const int tn = hal::touch::read(tpts, 2);
     const bool down = tn > 0;
-    if (scr) {
-        if (down && !was_down_) {
+    if (scr && (down || was_down_)) {
+        const ui::TouchPhase phase = !was_down_ ? ui::TouchPhase::Down
+                                   : down       ? ui::TouchPhase::Move
+                                                : ui::TouchPhase::Up;
+        if (phase == ui::TouchPhase::Down) {
             ESP_LOGI(TAG, "touch down (%d,%d)", tpts[0].x, tpts[0].y);
-            scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Down);
+            // The arbiter reads these at Down only. The strip is claimed only
+            // while the status bar shows (the reader's full-screen mode hides it).
+            gesture_.setEnabled(Settings::instance().gesturesEnabled());
+            gesture_.setZones(status_bar_.visible() ? ui::StatusBar::kHeight : 0,
+                              Framebuffer::kH);
+            touch_screen_ = scr;
+        } else if (scr != touch_screen_) {
+            // The screen changed under the finger (an app closed itself, the
+            // SD card went). What the arbiter held was meant for the old one.
+            gesture_.reset();
+            touch_screen_ = scr;
         }
-        else if (down && was_down_)  scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Move);
-        else if (!down && was_down_) scr->handleTouch(tpts[0].x, tpts[0].y, ui::TouchPhase::Up);
+        touch_out_.clear();
+        const ui::Gesture g = gesture_.feed(tpts[0].x, tpts[0].y, phase, t / 1000, touch_out_);
+        for (const ui::TouchEvent& e : touch_out_) scr->handleTouch(e.x, e.y, e.phase);
+        if (g == ui::Gesture::PullDown) {
+            ESP_LOGI(TAG, "gesture: pull down");
+            if (pull_down_cb_) pull_down_cb_();
+        } else if (g == ui::Gesture::SwipeUp) {
+            ESP_LOGI(TAG, "gesture: swipe up");
+            goHome();
+        }
     }
     if (down != was_down_ || down) activity = true;
     was_down_ = down;

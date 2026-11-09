@@ -15,6 +15,10 @@
 
 namespace apps {
 
+// Turns Wi-Fi on or off for the whole system and remembers the choice (it
+// also gates the boot auto-connect). Shared by 설정 -> Wi-Fi and quick settings.
+void setWifiEnabled(bool on);
+
 // Wi-Fi setup: scan -> pick an AP -> (password via on-screen keyboard) -> join.
 // A successful join is written to core::Settings and upserted into
 // /sd/.wifi/known.txt (dot-prefixed, so the file manager hides it) when a card
@@ -41,7 +45,7 @@ private:
 
     void showList();
     void showPassword();
-    void setRadioEnabled(bool on);   // user toggle: persist + connect/disconnect
+    void setRadioEnabled(bool on);   // user toggle: setWifiEnabled + repaint
     void startScan();
     void collectScan();
     void rebuildRows();     // merge last scan + known_ into rows_ and repaint

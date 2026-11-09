@@ -109,6 +109,9 @@ enum Lang { Ko = 0, En = 1 };
     X(SET_LANGUAGE,       "언어 / Language",     "Language")                     \
     X(SET_POWER,          "전원",                "Power")                        \
     X(SET_RESTART_APPLY,  "재시작하여 적용",     "Restart to apply")             \
+    X(SET_GESTURES_FMT,   "제스처: %s",         "Gestures: %s")                  \
+    X(SET_ON,             "켜짐",               "on")                            \
+    X(SET_OFF,            "꺼짐",               "off")                           \
     /* system status page */                                                    \
     X(SYS_BATTERY,        "배터리",              "Battery")                      \
     X(SYS_STORAGE,        "SD 카드",             "SD card")                      \
@@ -189,6 +192,11 @@ enum Lang { Ko = 0, En = 1 };
                           "EPUB inflate: ESP32-S3 ROM miniz")                   \
     X(ABOUT_OSS_NOTE,     "오픈소스 고지 전문: docs/THIRD_PARTY.md",             \
                           "Full OSS notices: docs/THIRD_PARTY.md")              \
+    /* quick settings */                                                        \
+    X(QS_TITLE,           "빠른 설정",          "Quick settings")                \
+    X(QS_WIFI,            "Wi-Fi",              "Wi-Fi")                         \
+    X(QS_CLEAR_SCREEN,    "화면 지우기",        "Clear screen")                  \
+    X(QS_STATUS_FMT,      "배터리 %s · %s",     "Battery %s · %s")               \
     /* language page */                                                         \
     X(LANG_TITLE,         "언어 / Language",     "Language")                     \
     X(LANG_KOREAN,        "한국어",              "한국어")                       \

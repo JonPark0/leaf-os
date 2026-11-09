@@ -35,6 +35,7 @@ bool Settings::init()
     if (hal::nvs::getInt("wauto", &i)) wifi_auto_ = (i != 0);
     if (hal::nvs::getInt("bgauge", &i)) batt_gauge_ = (i != 0);
     if (hal::nvs::getInt("brgauge", &i)) bright_gauge_ = (i != 0);
+    if (hal::nvs::getInt("gest", &i)) gestures_ = (i != 0);
 
     hal::nvs::getStr("uifam", &ui_font_family_);
     hal::nvs::getStr("rfam", &read_font_family_);
@@ -183,6 +184,14 @@ void Settings::setBrightnessGauge(bool v)
     if (v == bright_gauge_) return;
     bright_gauge_ = v;
     putInt("brgauge", v ? 1 : 0);
+    commit();
+}
+
+void Settings::setGesturesEnabled(bool v)
+{
+    if (v == gestures_) return;
+    gestures_ = v;
+    putInt("gest", v ? 1 : 0);
     commit();
 }
 

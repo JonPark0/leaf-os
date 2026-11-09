@@ -74,6 +74,12 @@ Return a truthy value from any of them to ask the host to repaint. Coordinates
 are portrait 480 × 800. A back button sits at the top-left (~`0..112, 42..92`) —
 leave that corner clear.
 
+The status bar strip at the top never reaches the app, and the bottom 40 px are
+shared with the system's swipe up (go home): a touch that starts there arrives
+on release, or once it is clearly not a swipe up, still as `down`, `move`, `up`
+in order. A swipe of 60 px up from that band closes the app instead. With
+설정 → 제스처 off, every touch arrives at once.
+
 ## Bindings
 
 ### g — drawing (only inside `on_draw`)
