@@ -140,26 +140,38 @@ void WifiApp::onCreate(const AppContext& ctx)
     else                    rebuildRows();   // show saved networks only
 }
 
-// User flipped the Wi-Fi checkbox. Persist the choice (it also gates the boot
-// auto-connect) and act on the radio now: an "off" that left the station
-// associated is exactly the complaint this toggle exists to fix.
-void WifiApp::setRadioEnabled(bool on)
+// Persist the choice (it also gates the boot auto-connect) and act on the
+// radio now: an "off" that left the station associated is exactly the
+// complaint this toggle exists to fix.
+void setWifiEnabled(bool on)
 {
     core::Settings::instance().setWifiAutoConnect(on);
     if (on) {
         hal::wifi::connectSaved();   // a scan now would fail: "STA is connecting"
-        rebuildRows();               // show saved networks; user taps 다시 검색
     } else {
         hal::wifi::disconnect();
     }
+}
+
+// User flipped the Wi-Fi checkbox on this page.
+void WifiApp::setRadioEnabled(bool on)
+{
+    setWifiEnabled(on);
+    if (on) rebuildRows();   // show saved networks; user taps 다시 검색
     refreshStatusLine();
 }
 
 void WifiApp::onResume()
 {
+    // Quick settings can switch Wi-Fi while this page is covered; show the
+    // radio as it is now, as if the box had been toggled here.
+    const bool on = core::Settings::instance().wifiAutoConnect();
+    const bool changed = on != wifi_on_.checked();
+    wifi_on_.setChecked(on);
     if (in_password_) {
         core::DisplayManager::instance().holdFullRefresh(true);
     } else {
+        if (changed && on) rebuildRows();   // as setRadioEnabled does
         refreshStatusLine();
     }
 }
